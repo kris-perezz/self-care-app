@@ -4,6 +4,16 @@ export async function Header() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
+  let balance = 0;
+  if (user) {
+    const { data: transactions } = await supabase
+      .from("currency_transactions")
+      .select("amount")
+      .eq("user_id", user.id);
+
+    balance = transactions?.reduce((sum, t) => sum + t.amount, 0) ?? 0;
+  }
+
   return (
     <header className="sticky top-0 z-40 border-b border-gray-200 bg-white">
       <div className="mx-auto flex h-14 max-w-md items-center justify-between px-4">
@@ -11,7 +21,7 @@ export async function Header() {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1 rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-700">
             <CoinIcon />
-            <span>0</span>
+            <span>{balance}</span>
           </div>
           {user && (
             <span className="text-xs text-gray-500 truncate max-w-[120px]">
