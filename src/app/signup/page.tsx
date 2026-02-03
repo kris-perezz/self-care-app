@@ -31,9 +31,20 @@ export default function SignUpPage() {
       return;
     }
 
+    // Detect browser timezone to store in profile via trigger
+    let timezone = "UTC";
+    try {
+      timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    } catch {
+      console.warn("Could not detect timezone, defaulting to UTC");
+    }
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: { timezone },
+      },
     });
 
     if (error) {

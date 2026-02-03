@@ -3,10 +3,10 @@ export interface Goal {
   user_id: string;
   title: string;
   description: string | null;
-  is_completed: boolean;
+  /** null = incomplete, ISO timestamp string = completed */
+  completed_at: string | null;
   currency_reward: number;
   created_at: string;
-  completed_at: string | null;
 }
 
 export interface Reflection {
@@ -31,5 +31,7 @@ export interface UserProfile {
   id: string;
   email: string;
   display_name: string | null;
+  /** IANA timezone identifier (e.g., 'America/Edmonton') */
+  timezone: string;
   created_at: string;
 }

@@ -14,7 +14,7 @@ export function GoalCard({ goal }: { goal: Goal }) {
     });
   }
 
-  if (goal.is_completed) {
+  if (goal.completed_at !== null) {
     return (
       <div className="flex items-start gap-3 rounded-xl border border-gray-100 bg-gray-50 p-4">
         <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600">

@@ -1,6 +1,7 @@
 -- ============================================
--- Self Care App: Database Schema
--- Run this in the Supabase SQL Editor
+-- Self Care App: Database Schema (current as of Phase 2)
+-- This file documents the current database state.
+-- For the actual migration that was run, see 20260201_phase2_refactor.sql
 -- ============================================
 
 -- 1. PROFILES TABLE
@@ -10,6 +11,7 @@ create table public.profiles (
   id uuid references auth.users(id) on delete cascade primary key,
   email text not null,
   display_name text,
+  timezone text not null default 'UTC',  -- IANA timezone (e.g., 'America/Edmonton')
   created_at timestamptz not null default now()
 );
 
@@ -24,18 +26,23 @@ create policy "Users can update own profile"
   using (auth.uid() = id);
 
 -- Auto-create a profile row when a new user signs up
+-- Reads timezone from raw_user_meta_data passed during signUp()
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  insert into public.profiles (id, email)
-  values (new.id, new.email);
+  insert into public.profiles (id, email, timezone)
+  values (
+    new.id,
+    new.email,
+    coalesce(new.raw_user_meta_data->>'timezone', 'UTC')
+  );
   return new;
 end;
 $$ language plpgsql security definer;
 
 create trigger on_auth_user_created
   after insert on auth.users
-  for each row execute procedure public.handle_new_user();
+  for each row execute function public.handle_new_user();
 
 -- Backfill profiles for any existing users
 insert into public.profiles (id, email)
@@ -44,15 +51,16 @@ on conflict (id) do nothing;
 
 
 -- 2. GOALS TABLE
+-- completed_at is null for incomplete goals, has timestamp when completed.
+-- There is no is_completed boolean — completed_at is the single source of truth.
 create table public.goals (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references auth.users(id) on delete cascade not null,
   title text not null,
   description text,
-  is_completed boolean not null default false,
   currency_reward integer not null default 10,
   created_at timestamptz not null default now(),
-  completed_at timestamptz
+  completed_at timestamptz  -- null = incomplete, has value = completed
 );
 
 alter table public.goals enable row level security;
@@ -72,6 +80,10 @@ create policy "Users can update own goals"
 create policy "Users can delete own goals"
   on public.goals for delete
   using (auth.uid() = user_id);
+
+-- Performance indexes
+create index idx_goals_user_id on public.goals (user_id);
+create index idx_goals_user_id_created_at on public.goals (user_id, created_at);
 
 
 -- 3. CURRENCY TRANSACTIONS TABLE
@@ -97,3 +109,7 @@ create policy "Users can view own transactions"
 create policy "Users can insert own transactions"
   on public.currency_transactions for insert
   with check (auth.uid() = user_id);
+
+-- Performance indexes
+create index idx_currency_transactions_user_id_amount on public.currency_transactions (user_id, amount);
+create index idx_currency_transactions_user_id_created_at on public.currency_transactions (user_id, created_at);

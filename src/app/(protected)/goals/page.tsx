@@ -22,8 +22,8 @@ export default async function GoalsPage() {
     goals = (data as Goal[]) ?? [];
   }
 
-  const activeGoals = goals.filter((g) => !g.is_completed);
-  const completedGoals = goals.filter((g) => g.is_completed);
+  const activeGoals = goals.filter((g) => g.completed_at === null);
+  const completedGoals = goals.filter((g) => g.completed_at !== null);
 
   return (
     <div className="space-y-6">

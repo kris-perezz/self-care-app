@@ -33,7 +33,7 @@ export default async function EditGoalPage({
   const goal = data as Goal;
 
   // Completed goals cannot be edited
-  if (goal.is_completed) {
+  if (goal.completed_at !== null) {
     redirect("/goals");
   }
 

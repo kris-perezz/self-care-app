@@ -61,7 +61,7 @@ export async function completeGoal(goalId: string): Promise<ActionState> {
   // Fetch the goal to get the reward amount and verify ownership
   const { data: goal, error: fetchError } = await supabase
     .from("goals")
-    .select("currency_reward, is_completed")
+    .select("currency_reward, completed_at")
     .eq("id", goalId)
     .eq("user_id", user.id)
     .single();
@@ -70,21 +70,23 @@ export async function completeGoal(goalId: string): Promise<ActionState> {
     return { error: "Goal not found" };
   }
 
-  if (goal.is_completed) {
+  if (goal.completed_at !== null) {
     return { error: "Goal is already completed" };
   }
 
-  // Mark goal as completed
-  const { error: updateError } = await supabase
+  // Mark goal as completed — the .is('completed_at', null) filter
+  // prevents race conditions: only the first request succeeds
+  const { data: updated, error: updateError } = await supabase
     .from("goals")
-    .update({
-      is_completed: true,
-      completed_at: new Date().toISOString(),
-    })
-    .eq("id", goalId);
+    .update({ completed_at: new Date().toISOString() })
+    .eq("id", goalId)
+    .is("completed_at", null)
+    .select()
+    .single();
 
-  if (updateError) {
-    return { error: updateError.message };
+  if (updateError || !updated) {
+    console.error("Goal completion race condition or update error:", updateError);
+    return { error: "Goal already completed" };
   }
 
   // Record the currency transaction
@@ -163,7 +165,7 @@ export async function deleteGoal(goalId: string): Promise<ActionState> {
   // Verify the goal exists, is owned by the user, and is NOT completed
   const { data: goal, error: fetchError } = await supabase
     .from("goals")
-    .select("is_completed")
+    .select("completed_at")
     .eq("id", goalId)
     .eq("user_id", user.id)
     .single();
@@ -172,7 +174,7 @@ export async function deleteGoal(goalId: string): Promise<ActionState> {
     return { error: "Goal not found" };
   }
 
-  if (goal.is_completed) {
+  if (goal.completed_at !== null) {
     return { error: "Completed goals cannot be deleted" };
   }
 
