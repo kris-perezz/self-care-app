@@ -3,6 +3,7 @@
 import { useActionState, useState, useTransition } from "react";
 import Link from "next/link";
 import { updateGoal, deleteGoal, type ActionState } from "../../actions";
+import { DIFFICULTY_REWARDS, formatCurrency } from "@/lib/currency";
 import type { Goal } from "@/types";
 
 const initialState: ActionState = { error: null };
@@ -24,7 +25,7 @@ export function EditGoalForm({ goal }: { goal: Goal }) {
       <div className="flex items-center gap-3">
         <Link
           href="/goals"
-          className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-gray-100"
+          className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/50"
           aria-label="Back to goals"
         >
           <svg className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -36,7 +37,7 @@ export function EditGoalForm({ goal }: { goal: Goal }) {
 
       <form action={formAction} className="space-y-4">
         {state.error && (
-          <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+          <div className="rounded-2xl bg-red-50 p-3 text-sm text-red-700">
             {state.error}
           </div>
         )}
@@ -51,7 +52,7 @@ export function EditGoalForm({ goal }: { goal: Goal }) {
             type="text"
             required
             defaultValue={goal.title}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="mt-1 block w-full rounded-2xl border-2 border-gray-200 bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"
           />
         </div>
 
@@ -64,33 +65,65 @@ export function EditGoalForm({ goal }: { goal: Goal }) {
             name="description"
             rows={3}
             defaultValue={goal.description ?? ""}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="mt-1 block w-full rounded-2xl border-2 border-gray-200 bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"
           />
         </div>
 
         <div>
-          <label htmlFor="currency_reward" className="block text-sm font-medium text-gray-700">
-            Currency reward
-          </label>
-          <input
-            id="currency_reward"
-            name="currency_reward"
-            type="number"
-            required
-            min={1}
-            max={100}
-            defaultValue={goal.currency_reward}
-            className="mt-1 block w-24 rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-          />
-          <p className="mt-1 text-xs text-gray-500">
-            Points you&apos;ll earn when you complete this goal (1–100)
-          </p>
+          <label className="block text-sm font-medium text-gray-700">Difficulty</label>
+          <div className="mt-2 flex gap-2">
+            {(["easy", "medium", "hard"] as const).map((d) => (
+              <label
+                key={d}
+                className="flex flex-1 cursor-pointer flex-col items-center gap-1 rounded-2xl border-2 border-gray-200 bg-white p-3 text-center transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/10"
+              >
+                <input
+                  type="radio"
+                  name="difficulty"
+                  value={d}
+                  defaultChecked={d === goal.difficulty}
+                  className="sr-only"
+                />
+                <span className="text-sm font-medium capitalize">{d}</span>
+                <span className="text-xs text-gray-500">
+                  {formatCurrency(DIFFICULTY_REWARDS[d])}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label htmlFor="scheduled_date" className="block text-sm font-medium text-gray-700">
+              Date <span className="text-gray-400">(optional)</span>
+            </label>
+            <input
+              id="scheduled_date"
+              name="scheduled_date"
+              type="date"
+              defaultValue={goal.scheduled_date ?? ""}
+              className="mt-1 block w-full rounded-2xl border-2 border-gray-200 bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"
+            />
+          </div>
+          <div>
+            <label htmlFor="scheduled_time" className="block text-sm font-medium text-gray-700">
+              Time <span className="text-gray-400">(optional)</span>
+            </label>
+            <input
+              id="scheduled_time"
+              name="scheduled_time"
+              type="time"
+              defaultValue={goal.scheduled_time ?? ""}
+              className="mt-1 block w-full rounded-2xl border-2 border-gray-200 bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"
+            />
+          </div>
         </div>
 
         <button
           type="submit"
           disabled={isPending}
-          className="w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
+          className="w-full rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-dark disabled:opacity-50"
         >
           {isPending ? "Saving..." : "Save Changes"}
         </button>
@@ -100,7 +133,7 @@ export function EditGoalForm({ goal }: { goal: Goal }) {
         {!showDeleteConfirm ? (
           <button
             onClick={() => setShowDeleteConfirm(true)}
-            className="w-full rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100"
+            className="w-full rounded-2xl border-2 border-red-200 bg-red-50 px-4 py-2.5 text-sm font-medium text-red-700 hover:bg-red-100"
           >
             Delete Goal
           </button>
@@ -113,13 +146,13 @@ export function EditGoalForm({ goal }: { goal: Goal }) {
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="flex-1 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                className="flex-1 rounded-2xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
               >
                 {isDeleting ? "Deleting..." : "Delete"}
               </button>
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="flex-1 rounded-2xl border-2 border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
                 Cancel
               </button>

@@ -1,0 +1,225 @@
+"use server";
+
+import { createClient } from "@/lib/supabase/server";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+
+export type RewardActionState = {
+  error: string | null;
+};
+
+export async function createReward(
+  _prevState: RewardActionState,
+  formData: FormData
+): Promise<RewardActionState> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Not authenticated" };
+  }
+
+  const name = formData.get("name") as string;
+  const emoji = (formData.get("emoji") as string) || "🎁";
+  const priceStr = formData.get("price") as string;
+  const price = Math.round(parseFloat(priceStr) * 100); // Convert dollars to cents
+
+  if (!name || name.trim().length === 0) {
+    return { error: "Name is required" };
+  }
+
+  if (isNaN(price) || price < 100) {
+    return { error: "Price must be at least $1.00" };
+  }
+
+  // Check if user has any active reward — if not, make this one active
+  const { data: existing } = await supabase
+    .from("rewards")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("is_active", true)
+    .is("purchased_at", null)
+    .limit(1);
+
+  const isActive = !existing || existing.length === 0;
+
+  const { error } = await supabase.from("rewards").insert({
+    user_id: user.id,
+    name: name.trim(),
+    emoji,
+    price,
+    is_active: isActive,
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/rewards");
+  revalidatePath("/home");
+  return { error: null };
+}
+
+export async function addPresetReward(
+  name: string,
+  emoji: string,
+  price: number
+): Promise<RewardActionState> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Not authenticated" };
+  }
+
+  const { data: existing } = await supabase
+    .from("rewards")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("is_active", true)
+    .is("purchased_at", null)
+    .limit(1);
+
+  const isActive = !existing || existing.length === 0;
+
+  const { error } = await supabase.from("rewards").insert({
+    user_id: user.id,
+    name,
+    emoji,
+    price,
+    is_active: isActive,
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/rewards");
+  revalidatePath("/home");
+  return { error: null };
+}
+
+export async function setActiveReward(rewardId: string): Promise<RewardActionState> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Not authenticated" };
+  }
+
+  // Deactivate all current active rewards
+  await supabase
+    .from("rewards")
+    .update({ is_active: false })
+    .eq("user_id", user.id)
+    .eq("is_active", true);
+
+  // Activate the selected one
+  const { error } = await supabase
+    .from("rewards")
+    .update({ is_active: true })
+    .eq("id", rewardId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/rewards");
+  revalidatePath("/home");
+  return { error: null };
+}
+
+export async function purchaseReward(rewardId: string): Promise<RewardActionState> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Not authenticated" };
+  }
+
+  // Get reward
+  const { data: reward } = await supabase
+    .from("rewards")
+    .select("price, purchased_at")
+    .eq("id", rewardId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!reward) {
+    return { error: "Reward not found" };
+  }
+
+  if (reward.purchased_at) {
+    return { error: "Already purchased" };
+  }
+
+  // Compute balance
+  const { data: transactions } = await supabase
+    .from("currency_transactions")
+    .select("amount")
+    .eq("user_id", user.id);
+
+  const balance = transactions?.reduce((sum, t) => sum + t.amount, 0) ?? 0;
+
+  if (balance < reward.price) {
+    return { error: "Insufficient balance" };
+  }
+
+  // Deduct and mark as purchased
+  const { error: txError } = await supabase
+    .from("currency_transactions")
+    .insert({
+      user_id: user.id,
+      amount: -reward.price,
+      source: "reward_spend",
+      reference_id: rewardId,
+    });
+
+  if (txError) {
+    return { error: txError.message };
+  }
+
+  await supabase
+    .from("rewards")
+    .update({ purchased_at: new Date().toISOString(), is_active: false })
+    .eq("id", rewardId);
+
+  revalidatePath("/rewards");
+  revalidatePath("/home");
+  revalidatePath("/", "layout");
+  return { error: null };
+}
+
+export async function deleteReward(rewardId: string): Promise<RewardActionState> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Not authenticated" };
+  }
+
+  const { error } = await supabase
+    .from("rewards")
+    .delete()
+    .eq("id", rewardId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/rewards");
+  revalidatePath("/home");
+  return { error: null };
+}

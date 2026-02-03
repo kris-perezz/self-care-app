@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { GoalCard } from "./goal-card";
+import { GoalFilters } from "./goal-filters";
 import { CompletedSection } from "./completed-section";
 import type { Goal } from "@/types";
 
@@ -31,34 +31,21 @@ export default async function GoalsPage() {
         <h2 className="text-2xl font-bold text-gray-900">Goals</h2>
         <Link
           href="/goals/new"
-          className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
+          className="rounded-2xl bg-primary px-4 py-1.5 text-sm font-medium text-white hover:bg-primary-dark"
         >
           + New Goal
         </Link>
       </div>
 
       {goals.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-gray-300 p-8 text-center">
+        <div className="rounded-2xl border-2 border-dashed border-gray-300 p-8 text-center">
           <p className="text-sm text-gray-500">
             No goals yet. Create your first self-care goal to get started!
           </p>
         </div>
       ) : (
         <>
-          {activeGoals.length > 0 ? (
-            <div className="space-y-3">
-              {activeGoals.map((goal) => (
-                <GoalCard key={goal.id} goal={goal} />
-              ))}
-            </div>
-          ) : (
-            <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center">
-              <p className="text-sm text-gray-500">
-                All goals completed! Add a new one to keep going.
-              </p>
-            </div>
-          )}
-
+          <GoalFilters goals={activeGoals} />
           <CompletedSection goals={completedGoals} />
         </>
       )}

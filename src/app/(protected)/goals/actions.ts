@@ -3,6 +3,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { DIFFICULTY_REWARDS, type Difficulty } from "@/lib/currency";
+import { computeStreak } from "@/lib/streak";
 
 export type ActionState = {
   error: string | null;
@@ -23,21 +25,28 @@ export async function createGoal(
 
   const title = formData.get("title") as string;
   const description = (formData.get("description") as string) || null;
-  const currencyReward = parseInt(formData.get("currency_reward") as string, 10);
+  const difficulty = (formData.get("difficulty") as string) || "medium";
+  const scheduledTime = (formData.get("scheduled_time") as string) || null;
+  const scheduledDate = (formData.get("scheduled_date") as string) || null;
 
   if (!title || title.trim().length === 0) {
     return { error: "Title is required" };
   }
 
-  if (isNaN(currencyReward) || currencyReward < 1 || currencyReward > 100) {
-    return { error: "Reward must be between 1 and 100" };
+  if (!["easy", "medium", "hard"].includes(difficulty)) {
+    return { error: "Invalid difficulty" };
   }
+
+  const currencyReward = DIFFICULTY_REWARDS[difficulty as Difficulty];
 
   const { error } = await supabase.from("goals").insert({
     user_id: user.id,
     title: title.trim(),
     description: description?.trim() || null,
+    difficulty,
     currency_reward: currencyReward,
+    scheduled_time: scheduledTime || null,
+    scheduled_date: scheduledDate || null,
   });
 
   if (error) {
@@ -85,7 +94,6 @@ export async function completeGoal(goalId: string): Promise<ActionState> {
     .single();
 
   if (updateError || !updated) {
-    console.error("Goal completion race condition or update error:", updateError);
     return { error: "Goal already completed" };
   }
 
@@ -103,7 +111,32 @@ export async function completeGoal(goalId: string): Promise<ActionState> {
     return { error: txError.message };
   }
 
+  // Update streak
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("current_streak, longest_streak, last_active_date, timezone")
+    .eq("id", user.id)
+    .single();
+
+  if (profile) {
+    const { newStreak, todayStr } = computeStreak(
+      profile.current_streak,
+      profile.last_active_date,
+      profile.timezone
+    );
+
+    await supabase
+      .from("profiles")
+      .update({
+        current_streak: newStreak,
+        longest_streak: Math.max(newStreak, profile.longest_streak),
+        last_active_date: todayStr,
+      })
+      .eq("id", user.id);
+  }
+
   revalidatePath("/goals");
+  revalidatePath("/home");
   revalidatePath("/", "layout");
   return { error: null };
 }
@@ -124,22 +157,29 @@ export async function updateGoal(
 
   const title = formData.get("title") as string;
   const description = (formData.get("description") as string) || null;
-  const currencyReward = parseInt(formData.get("currency_reward") as string, 10);
+  const difficulty = (formData.get("difficulty") as string) || "medium";
+  const scheduledTime = (formData.get("scheduled_time") as string) || null;
+  const scheduledDate = (formData.get("scheduled_date") as string) || null;
 
   if (!title || title.trim().length === 0) {
     return { error: "Title is required" };
   }
 
-  if (isNaN(currencyReward) || currencyReward < 1 || currencyReward > 100) {
-    return { error: "Reward must be between 1 and 100" };
+  if (!["easy", "medium", "hard"].includes(difficulty)) {
+    return { error: "Invalid difficulty" };
   }
+
+  const currencyReward = DIFFICULTY_REWARDS[difficulty as Difficulty];
 
   const { error } = await supabase
     .from("goals")
     .update({
       title: title.trim(),
       description: description?.trim() || null,
+      difficulty,
       currency_reward: currencyReward,
+      scheduled_time: scheduledTime || null,
+      scheduled_date: scheduledDate || null,
     })
     .eq("id", goalId)
     .eq("user_id", user.id);
@@ -162,7 +202,6 @@ export async function deleteGoal(goalId: string): Promise<ActionState> {
     return { error: "Not authenticated" };
   }
 
-  // Verify the goal exists, is owned by the user, and is NOT completed
   const { data: goal, error: fetchError } = await supabase
     .from("goals")
     .select("completed_at")

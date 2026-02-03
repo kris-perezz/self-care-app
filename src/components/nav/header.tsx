@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { formatCurrency } from "@/lib/currency";
 
 export async function Header() {
   const supabase = await createClient();
@@ -15,19 +16,12 @@ export async function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-gray-200 bg-white">
+    <header className="sticky top-0 z-40 border-b border-gray-200/50 bg-white/90 backdrop-blur-sm">
       <div className="mx-auto flex h-14 max-w-md items-center justify-between px-4">
         <h1 className="text-lg font-bold text-gray-900">Self Care</h1>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-700">
-            <CoinIcon />
-            <span>{balance}</span>
-          </div>
-          {user && (
-            <span className="text-xs text-gray-500 truncate max-w-[120px]">
-              {user.email}
-            </span>
-          )}
+        <div className="flex items-center gap-1 rounded-full bg-primary/20 px-3 py-1 text-sm font-medium text-primary-dark">
+          <CoinIcon />
+          <span>{formatCurrency(balance)}</span>
         </div>
       </div>
     </header>
