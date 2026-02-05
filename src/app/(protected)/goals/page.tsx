@@ -28,7 +28,7 @@ export default async function GoalsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Goals</h2>
+        <h2 className="heading-large text-neutral-900">Goals</h2>
         <Link
           href="/goals/new"
           className="rounded-2xl bg-primary px-4 py-1.5 text-sm font-medium text-white hover:bg-primary-dark"

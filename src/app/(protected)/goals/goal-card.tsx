@@ -7,9 +7,9 @@ import { formatCurrency } from "@/lib/currency";
 import type { Goal } from "@/types";
 
 const DIFFICULTY_COLORS = {
-  easy: "bg-primary/20 text-primary-dark",
-  medium: "bg-tan/60 text-gray-700",
-  hard: "bg-pink/30 text-pink-800",
+  easy: "bg-primary-100 text-primary-700",
+  medium: "bg-secondary-100 text-secondary-900",
+  hard: "bg-accent-100 text-accent-900",
 } as const;
 
 export function GoalCard({ goal, compact }: { goal: Goal; compact?: boolean }) {
@@ -30,56 +30,60 @@ export function GoalCard({ goal, compact }: { goal: Goal; compact?: boolean }) {
 
   if (goal.completed_at !== null) {
     return (
-      <div className="flex items-center gap-3 rounded-2xl border-2 border-gray-100 bg-gray-50/80 p-4">
-        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-primary">
+      <div className="flex items-start gap-3 rounded-2xl border-2 border-neutral-100 bg-white p-4 shadow-card opacity-60">
+        {/* Emoji - LEFT */}
+        <div className="shrink-0 text-2xl grayscale">{goal.emoji || "🎯"}</div>
+
+        {/* Content - MIDDLE */}
+        <div className="min-w-0 flex-1">
+          <p className="text-small text-neutral-700 line-through">{goal.title}</p>
+          {!compact && goal.description && (
+            <p className="mt-0.5 truncate text-tiny text-neutral-500 line-through">{goal.description}</p>
+          )}
+        </div>
+
+        {/* Completed checkmark - RIGHT */}
+        <div className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-primary-500">
           <svg className="h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
           </svg>
         </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-gray-400 line-through">{goal.title}</p>
-        </div>
-        <span className={`shrink-0 rounded-xl px-2 py-0.5 text-xs font-medium ${DIFFICULTY_COLORS[goal.difficulty]} opacity-50`}>
-          {formatCurrency(goal.currency_reward)}
-        </span>
       </div>
     );
   }
 
   return (
-    <div className="flex items-center gap-3 rounded-2xl border-2 border-gray-200 bg-white p-4">
-      <button
-        onClick={handleComplete}
-        disabled={isPending}
-        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border-2 border-gray-300 transition-colors hover:border-primary hover:bg-primary/10 disabled:opacity-50"
-        aria-label={`Complete "${goal.title}"`}
-      >
-        {isPending && (
-          <div className="h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        )}
-      </button>
+    <div className="flex items-start gap-3 rounded-2xl border-2 border-neutral-100 bg-white p-4 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card-hover hover:brightness-98">
+      {/* Emoji - LEFT */}
+      <div className="shrink-0 text-2xl" role="img" aria-label={goal.title}>
+        {goal.emoji || "🎯"}
+      </div>
+
+      {/* Content - MIDDLE */}
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-gray-900">{goal.title}</p>
+        <p className="text-small text-neutral-900">{goal.title}</p>
         {!compact && goal.description && (
-          <p className="mt-0.5 truncate text-xs text-gray-500">{goal.description}</p>
+          <p className="mt-0.5 truncate text-tiny text-neutral-700">{goal.description}</p>
         )}
         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
           {goal.scheduled_time && (
-            <span className="flex items-center gap-1 rounded-lg bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
-              <CalendarIcon />
+            <span className="flex items-center gap-1 rounded-lg bg-neutral-100 px-2 py-0.5 text-tiny text-neutral-500">
+              <ClockIcon />
               {formatTime(goal.scheduled_time)}
             </span>
           )}
-          <span className={`rounded-xl px-2 py-0.5 text-xs font-medium ${DIFFICULTY_COLORS[goal.difficulty]}`}>
-            {goal.difficulty} {formatCurrency(goal.currency_reward)}
+          <span className={`rounded-xl px-2 py-0.5 text-tiny ${DIFFICULTY_COLORS[goal.difficulty]}`}>
+            {goal.difficulty.toUpperCase()} • {formatCurrency(goal.currency_reward)}
           </span>
         </div>
       </div>
-      {!compact && (
-        <div className="flex shrink-0 items-center gap-1">
+
+      {/* Actions - RIGHT */}
+      {!compact ? (
+        <div className="ml-auto flex shrink-0 items-center gap-1">
           <Link
             href={`/goals/${goal.id}/edit`}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            className="interactive-icon flex h-8 w-8 items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
             aria-label="Edit goal"
           >
             <PencilIcon />
@@ -87,16 +91,37 @@ export function GoalCard({ goal, compact }: { goal: Goal; compact?: boolean }) {
           <button
             onClick={handleDelete}
             disabled={isDeleting}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-pink/10 hover:text-pink-700 disabled:opacity-50"
+            className="interactive-icon flex h-8 w-8 items-center justify-center rounded-lg text-neutral-500 hover:bg-accent-50 hover:text-accent-700 disabled:opacity-50"
             aria-label="Delete goal"
           >
             {isDeleting ? (
-              <div className="h-3 w-3 animate-spin rounded-full border-2 border-pink border-t-transparent" />
+              <div className="h-3 w-3 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
             ) : (
               <TrashIcon />
             )}
           </button>
+          <button
+            onClick={handleComplete}
+            disabled={isPending}
+            className="interactive-button flex h-6 w-6 items-center justify-center rounded-lg border-2 border-neutral-100 transition-all hover:border-primary-500 hover:bg-primary-50 disabled:opacity-50"
+            aria-label={`Complete "${goal.title}"`}
+          >
+            {isPending && (
+              <div className="h-3 w-3 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+            )}
+          </button>
         </div>
+      ) : (
+        <button
+          onClick={handleComplete}
+          disabled={isPending}
+          className="interactive-button ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border-2 border-neutral-100 transition-all hover:border-primary-500 hover:bg-primary-50 disabled:opacity-50"
+          aria-label={`Complete "${goal.title}"`}
+        >
+          {isPending && (
+            <div className="h-3 w-3 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+          )}
+        </button>
       )}
     </div>
   );
@@ -110,10 +135,10 @@ function formatTime(time: string): string {
   return `${h12}:${minutes} ${ampm}`;
 }
 
-function CalendarIcon() {
+function ClockIcon() {
   return (
-    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+    <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 000-1.5h-3.25V5z" clipRule="evenodd" />
     </svg>
   );
 }

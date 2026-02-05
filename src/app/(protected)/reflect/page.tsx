@@ -37,7 +37,7 @@ export default async function ReflectPage() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold text-gray-900">Reflect</h2>
+      <h2 className="heading-large text-neutral-900">Reflect</h2>
 
       <MoodCheckin hasMoodToday={hasMoodToday} />
 

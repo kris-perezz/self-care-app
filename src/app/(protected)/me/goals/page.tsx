@@ -47,7 +47,7 @@ export default async function GoalHistoryPage() {
             />
           </svg>
         </Link>
-        <h2 className="text-2xl font-bold text-gray-900">Goal History</h2>
+        <h2 className="heading-large text-neutral-900">Goal History</h2>
       </div>
 
       {/* Summary card */}

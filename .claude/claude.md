@@ -98,6 +98,8 @@ self-care-app/
 │   │   ├── page.tsx                      # / → redirect to /home
 │   │   ├── login/page.tsx                # Login (client)
 │   │   ├── signup/page.tsx               # Signup (client)
+│   │   ├── forgot-password/page.tsx      # Forgot password flow
+│   │   ├── reset-password/page.tsx       # Reset password flow
 │   │   ├── auth/callback/route.ts        # OAuth handler
 │   │   └── (protected)/                  # Requires auth
 │   │       ├── layout.tsx                # Header + BottomNav + TimezoneSync
@@ -105,13 +107,19 @@ self-care-app/
 │   │       ├── goals/                    # Goals CRUD
 │   │       ├── reflect/                  # Mood + Writing
 │   │       ├── rewards/                  # Rewards system
-│   │       └── me/                       # Profile + stats
+│   │       └── me/                       # Profile hub
+│   │           ├── page.tsx              # Me landing page
+│   │           ├── goals/                # Goal history
+│   │           ├── reflections/          # Reflection archive
+│   │           └── settings/             # User settings
 │   ├── components/
 │   │   ├── nav/                          # Header, BottomNav
+│   │   ├── filter-button.tsx             # Shared filter component
 │   │   └── timezone-sync.tsx             # Auto-detect timezone
 │   ├── lib/
 │   │   ├── supabase/                     # Client/server/middleware
 │   │   ├── currency.ts                   # formatCurrency, DIFFICULTY_REWARDS
+│   │   ├── moods.ts                      # Mood emoji mappings
 │   │   ├── streak.ts                     # computeStreak, getToday
 │   │   └── writing-prompts.ts            # Reflection prompts + earnings
 │   └── types/index.ts                    # TypeScript types
@@ -223,6 +231,7 @@ Balance = SUM(amount) FROM currency_transactions
 5. **TimezoneSync component** - Runs once on mount to fix legacy UTC users
 6. **Currency must be integers** - Never use floats (always cents)
 7. **React Compiler enabled** - Don't manually memoize, it's automatic
+8. **Middleware auth paths** - `/forgot-password` and `/reset-password` are public routes
 
 ---
 
@@ -238,11 +247,14 @@ Balance = SUM(amount) FROM currency_transactions
 
 **Completed**: Phases 1-3 (MVP - Auth, Goals, Reflections, Rewards, UI)
 
-**Next Up** (Phase 4 - See roadmap):
-1. Fix currency transaction integrity bug (atomic RPC)
-2. Implement Me page views (goal history, reflection archive, settings)
-3. Add loading states and error boundaries
-4. Polish and fill core gaps
+**Phase 4 Progress** (See roadmap):
+- ✅ Implemented Me page views (goal history, reflection archive, settings)
+- ✅ Added password recovery flow (forgot/reset password)
+- ✅ Created shared filter components
+- ✅ Extracted mood utilities
+- 🔲 Fix currency transaction integrity bug (atomic RPC)
+- 🔲 Add loading states and error boundaries
+- 🔲 Polish and fill core gaps
 
 **Future**: Cat system (Phase 5), Bundles (Phase 6), Advanced features (Phase 7+)
 

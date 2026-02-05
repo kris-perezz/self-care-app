@@ -36,12 +36,12 @@ export default async function RewardsPage() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold text-gray-900">Rewards</h2>
+      <h2 className="heading-large text-neutral-900">Rewards</h2>
 
       <BalanceCard balance={balance} />
 
       <div className="space-y-3">
-        <h3 className="text-sm font-bold text-gray-900">IRL Rewards</h3>
+        <h3 className="heading-section text-neutral-900">IRL Rewards</h3>
 
         {activeRewards.length > 0 ? (
           <div className="space-y-2">
@@ -54,7 +54,7 @@ export default async function RewardsPage() {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-500">
+          <p className="text-small text-neutral-700">
             Add a reward to start saving toward something!
           </p>
         )}
@@ -66,18 +66,18 @@ export default async function RewardsPage() {
 
       {purchasedRewards.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-sm font-bold text-gray-500">Purchased</h3>
+          <h3 className="heading-section text-neutral-700">Purchased</h3>
           <div className="space-y-2">
             {purchasedRewards.map((reward) => (
               <div
                 key={reward.id}
-                className="flex items-center gap-3 rounded-2xl border-2 border-gray-100 bg-gray-50/80 p-4"
+                className="flex items-center gap-3 rounded-2xl border-2 border-neutral-100 bg-white p-4 shadow-card opacity-60"
               >
-                <span className="text-lg">{reward.emoji}</span>
-                <span className="flex-1 text-sm font-medium text-gray-400 line-through">
+                <span className="text-2xl grayscale">{reward.emoji}</span>
+                <span className="flex-1 text-small text-neutral-700 line-through">
                   {reward.name}
                 </span>
-                <span className="text-xs text-gray-400">
+                <span className="text-tiny text-neutral-500">
                   {formatCurrency(reward.price)}
                 </span>
               </div>

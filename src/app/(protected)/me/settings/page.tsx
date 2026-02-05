@@ -44,7 +44,7 @@ export default async function SettingsPage() {
             />
           </svg>
         </Link>
-        <h2 className="text-2xl font-bold text-gray-900">Settings</h2>
+        <h2 className="heading-large text-neutral-900">Settings</h2>
       </div>
 
       <SettingsForm profile={profile} />

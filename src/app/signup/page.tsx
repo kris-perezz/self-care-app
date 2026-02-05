@@ -57,26 +57,26 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4" style={{ background: "linear-gradient(to bottom right, #ffe4fa, #f1dedc, #e1dabd)" }}>
+    <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+          <h1 className="heading-large text-neutral-900">
             Self Care
           </h1>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-small text-neutral-700">
             Create your account
           </p>
         </div>
 
         <form onSubmit={handleSignUp} className="space-y-4">
           {error && (
-            <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+            <div className="rounded-xl bg-accent-50 p-3 text-small text-accent-900 shadow-card">
               {error}
             </div>
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="email" className="block text-small text-neutral-900">
               Email
             </label>
             <input
@@ -85,13 +85,13 @@ export default function SignUpPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none"
+              className="mt-1 block w-full rounded-xl border border-neutral-100 bg-neutral-50 px-3 py-2 text-body text-neutral-900 shadow-card transition-all duration-200 ease-in-out focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
               placeholder="you@example.com"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="password" className="block text-small text-neutral-900">
               Password
             </label>
             <input
@@ -100,13 +100,13 @@ export default function SignUpPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none"
+              className="mt-1 block w-full rounded-xl border border-neutral-100 bg-neutral-50 px-3 py-2 text-body text-neutral-900 shadow-card transition-all duration-200 ease-in-out focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
               placeholder="••••••••"
             />
           </div>
 
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="confirmPassword" className="block text-small text-neutral-900">
               Confirm Password
             </label>
             <input
@@ -115,7 +115,7 @@ export default function SignUpPage() {
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none"
+              className="mt-1 block w-full rounded-xl border border-neutral-100 bg-neutral-50 px-3 py-2 text-body text-neutral-900 shadow-card transition-all duration-200 ease-in-out focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
               placeholder="••••••••"
             />
           </div>
@@ -123,15 +123,15 @@ export default function SignUpPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-dark disabled:opacity-50"
+            className="btn btn-secondary w-full"
           >
             {loading ? "Creating account..." : "Sign up"}
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-600">
+        <p className="text-center text-small text-neutral-700">
           Already have an account?{" "}
-          <Link href="/login" className="font-medium text-primary-dark hover:text-primary">
+          <Link href="/login" className="text-emphasis text-primary-700 hover:text-primary-500">
             Sign in
           </Link>
         </p>

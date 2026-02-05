@@ -16,10 +16,10 @@ export async function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-gray-200/50 bg-white/90 backdrop-blur-sm">
-      <div className="mx-auto flex h-14 max-w-md items-center justify-between px-4">
-        <h1 className="text-lg font-bold text-gray-900">Self Care</h1>
-        <div className="flex items-center gap-1 rounded-full bg-primary/20 px-3 py-1 text-sm font-medium text-primary-dark">
+    <header className="sticky top-0 z-40 border-b border-neutral-100 bg-white/95 backdrop-blur-sm">
+      <div className="mx-auto flex h-14 max-w-[900px] items-center justify-between px-6">
+        <h1 className="heading-section text-neutral-900">Self Care</h1>
+        <div className="flex items-center gap-1 rounded-full bg-primary-100 px-3 py-1 text-small text-primary-700">
           <CoinIcon />
           <span>{formatCurrency(balance)}</span>
         </div>

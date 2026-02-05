@@ -22,7 +22,7 @@ export default function NewGoalPage() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
           </svg>
         </Link>
-        <h2 className="text-2xl font-bold text-gray-900">New Goal</h2>
+        <h2 className="heading-large text-neutral-900">New Goal</h2>
       </div>
 
       <form action={formAction} className="space-y-4">
@@ -111,7 +111,7 @@ export default function NewGoalPage() {
         <button
           type="submit"
           disabled={isPending}
-          className="w-full rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-dark disabled:opacity-50"
+          className="btn btn-primary w-full"
         >
           {isPending ? "Creating..." : "Create Goal"}
         </button>

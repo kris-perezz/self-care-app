@@ -53,7 +53,7 @@ export default async function ReflectionArchivePage() {
             />
           </svg>
         </Link>
-        <h2 className="text-2xl font-bold text-gray-900">Reflections</h2>
+        <h2 className="heading-large text-neutral-900">Reflections</h2>
       </div>
 
       {/* Summary card */}

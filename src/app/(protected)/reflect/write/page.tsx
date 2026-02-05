@@ -20,7 +20,7 @@ export default async function WritePage({
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
           </svg>
         </Link>
-        <h2 className="text-2xl font-bold text-gray-900">
+        <h2 className="heading-large text-neutral-900">
           {type === "prompted" ? "Prompted" : "Free Write"}
         </h2>
       </div>

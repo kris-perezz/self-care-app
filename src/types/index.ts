@@ -6,6 +6,8 @@ export interface Goal {
   difficulty: "easy" | "medium" | "hard";
   /** Auto-set from difficulty: easy=2, medium=5, hard=10 (cents) */
   currency_reward: number;
+  /** Emoji icon displayed on goal card (defaults to 🎯) */
+  emoji: string;
   /** Optional time of day, e.g. "08:00" */
   scheduled_time: string | null;
   /** Optional date for filtering, e.g. "2026-02-02" */

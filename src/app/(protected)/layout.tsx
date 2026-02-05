@@ -8,15 +8,10 @@ export default function ProtectedLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div
-      className="mx-auto min-h-screen max-w-md"
-      style={{
-        background: "linear-gradient(to bottom right, #ffe4fa, #f1dedc, #e1dabd)",
-      }}
-    >
+    <div className="mx-auto min-h-screen max-w-[900px]">
       <TimezoneSync />
       <Header />
-      <main className="px-4 pb-20 pt-4">{children}</main>
+      <main className="px-6 pb-20 pt-4">{children}</main>
       <BottomNav />
     </div>
   );

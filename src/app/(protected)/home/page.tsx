@@ -61,7 +61,7 @@ export default async function HomePage() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">Today</h2>
+        <h2 className="heading-large text-neutral-900">Today</h2>
         <p className="text-sm text-gray-500">
           {new Date().toLocaleDateString("en-US", {
             weekday: "long",
