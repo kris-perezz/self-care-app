@@ -122,6 +122,30 @@ self-care-app/
 
 ---
 
+## Reference Files
+
+The `.claude/` folder contains reference materials and Claude Code configuration:
+
+### Design System Reference
+- **`component-library.html`** - Visual component library with live examples
+  - Open in browser to see all UI components styled with Matcha palette
+  - Includes: typography, buttons, badges, cards, navigation, inputs, color swatches
+  - Use this when implementing new UI to match existing design patterns
+  - Shows interactive states (hover, active, disabled)
+
+### Mockups & Prototypes
+- **`self-care-mockups-v6.jsx`** - Original React mockup/prototype
+  - Reference for initial design vision and UX flows
+
+### Configuration
+- **`claude.md`** - This file (project context for Claude sessions)
+- **`settings.local.json`** - Claude Code local settings (gitignored)
+- **`plans/`** - Temporary plan files (gitignored)
+
+**Quick Tip**: When implementing UI components, open `component-library.html` in your browser to see exactly how components should look and behave with the Matcha design system.
+
+---
+
 ## Common Workflows
 
 ```bash
@@ -186,7 +210,7 @@ Balance = SUM(amount) FROM currency_transactions
 - Mobile-first, max-width 900px on desktop
 - Bottom navigation (5 tabs: Home, Goals, Reflect, Rewards, Me)
 
-**See**: `docs/design-system.json` for full specification
+**See**: `docs/design-system.json` for full specification, `.claude/component-library.html` for visual reference
 
 ---
 
