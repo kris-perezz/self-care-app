@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { SignOutButton } from "./sign-out-button";
@@ -74,21 +75,25 @@ export default async function MePage() {
           icon="📊"
           label="Goal history"
           bgColor="bg-primary/10"
+          href="/me/goals"
         />
         <MenuItem
           icon="📝"
           label="Reflection archive"
           bgColor="bg-pink/10"
+          href="/me/reflections"
         />
         <MenuItem
           icon="❤️"
           label="Monthly summaries"
           bgColor="bg-pink-light/30"
+          sublabel="Coming soon"
         />
         <MenuItem
           icon="⚙️"
           label="Settings"
           bgColor="bg-gray-100"
+          href="/me/settings"
         />
       </div>
 
@@ -103,32 +108,62 @@ function MenuItem({
   icon,
   label,
   bgColor,
+  href,
+  sublabel,
 }: {
   icon: string;
   label: string;
   bgColor: string;
+  href?: string;
+  sublabel?: string;
 }) {
-  return (
-    <button className="flex w-full items-center gap-3 rounded-2xl border-2 border-gray-200 bg-white p-4 text-left hover:border-primary/50">
+  const chevron = (
+    <svg
+      className="h-4 w-4 text-gray-400"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={2}
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="m8.25 4.5 7.5 7.5-7.5 7.5"
+      />
+    </svg>
+  );
+
+  const content = (
+    <>
       <span
         className={`flex h-10 w-10 items-center justify-center rounded-xl text-lg ${bgColor}`}
       >
         {icon}
       </span>
-      <span className="flex-1 text-sm font-medium text-gray-900">{label}</span>
-      <svg
-        className="h-4 w-4 text-gray-400"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={2}
-        stroke="currentColor"
+      <span className="flex flex-1 flex-col">
+        <span className="text-sm font-medium text-gray-900">{label}</span>
+        {sublabel && (
+          <span className="text-xs text-gray-400">{sublabel}</span>
+        )}
+      </span>
+      {chevron}
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className="flex w-full items-center gap-3 rounded-2xl border-2 border-gray-200 bg-white p-4 text-left hover:border-primary/50"
       >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="m8.25 4.5 7.5 7.5-7.5 7.5"
-        />
-      </svg>
-    </button>
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <div className="flex w-full items-center gap-3 rounded-2xl border-2 border-gray-200 bg-white/60 p-4 text-left opacity-50">
+      {content}
+    </div>
   );
 }

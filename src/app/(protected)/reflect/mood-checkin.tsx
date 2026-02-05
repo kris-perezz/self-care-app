@@ -2,15 +2,7 @@
 
 import { useTransition } from "react";
 import { saveMoodCheckin } from "./actions";
-
-const MOODS = [
-  { emoji: "😊", label: "Happy" },
-  { emoji: "😌", label: "Calm" },
-  { emoji: "😔", label: "Sad" },
-  { emoji: "😰", label: "Anxious" },
-  { emoji: "😴", label: "Tired" },
-  { emoji: "😤", label: "Frustrated" },
-];
+import { MOODS } from "@/lib/moods";
 
 export function MoodCheckin({ hasMoodToday }: { hasMoodToday: boolean }) {
   const [isPending, startTransition] = useTransition();

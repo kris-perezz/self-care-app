@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { FilterButton } from "@/components/filter-button";
 import { GoalCard } from "./goal-card";
 import type { Goal } from "@/types";
 
@@ -26,17 +27,13 @@ export function GoalFilters({ goals }: { goals: Goal[] }) {
     <div className="space-y-3">
       <div className="flex gap-2">
         {(["today", "week", "all"] as const).map((f) => (
-          <button
+          <FilterButton
             key={f}
+            active={filter === f}
             onClick={() => setFilter(f)}
-            className={`rounded-xl px-3 py-1.5 text-xs font-medium transition-colors ${
-              filter === f
-                ? "bg-primary text-white"
-                : "bg-white text-gray-500 hover:bg-gray-100"
-            }`}
           >
             {f === "today" ? "Today" : f === "week" ? "This week" : "All"}
-          </button>
+          </FilterButton>
         ))}
       </div>
 
