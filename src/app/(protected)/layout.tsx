@@ -11,7 +11,7 @@ export default function ProtectedLayout({
     <div className="mx-auto min-h-screen max-w-[900px]">
       <TimezoneSync />
       <Header />
-      <main className="px-6 pb-20 pt-4">{children}</main>
+      <main className="mx-auto max-w-[900px] px-6 pb-20 pt-4">{children}</main>
       <BottomNav />
     </div>
   );

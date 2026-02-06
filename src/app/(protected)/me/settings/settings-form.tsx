@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { updateProfile, type SettingsActionState } from "./actions";
 import type { UserProfile } from "@/types";
+import { Button, Card, Field, Input, Select } from "@/components/ui";
 
 const TIMEZONE_OPTIONS = [
   { group: "Americas", zones: [
@@ -60,59 +61,42 @@ export function SettingsForm({ profile }: { profile: UserProfile }) {
   return (
     <form action={formAction} className="space-y-4">
       {state.error && (
-        <div className="rounded-2xl bg-red-50 p-3 text-sm text-red-700">
+        <div className="rounded-2xl bg-warning-50 p-3 text-small text-warning-900">
           {state.error}
         </div>
       )}
 
       {state.success && (
-        <div className="rounded-2xl bg-primary/10 p-3 text-sm text-primary-dark">
+        <div className="rounded-2xl bg-success-100 p-3 text-small text-success-700">
           Settings saved!
         </div>
       )}
 
       {/* Email (read-only) */}
-      <div>
-        <label className="mb-1 block text-xs font-medium text-gray-500">
-          Email
-        </label>
-        <p className="rounded-2xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm text-gray-500">
+      <Field label="Email">
+        <Card variant="muted" className="text-small text-neutral-700/70">
           {profile.email}
-        </p>
-      </div>
+        </Card>
+      </Field>
 
       {/* Display Name */}
-      <div>
-        <label
-          htmlFor="display_name"
-          className="mb-1 block text-xs font-medium text-gray-500"
-        >
-          Display Name
-        </label>
-        <input
+      <Field htmlFor="display_name" label="Display Name">
+        <Input
           id="display_name"
           name="display_name"
           type="text"
           defaultValue={profile.display_name ?? ""}
           maxLength={50}
-          className="block w-full rounded-2xl border-2 border-gray-200 bg-white px-4 py-3 text-sm focus:border-primary focus:outline-none"
           placeholder="What should we call you?"
         />
-      </div>
+      </Field>
 
       {/* Timezone */}
-      <div>
-        <label
-          htmlFor="timezone"
-          className="mb-1 block text-xs font-medium text-gray-500"
-        >
-          Timezone
-        </label>
-        <select
+      <Field htmlFor="timezone" label="Timezone">
+        <Select
           id="timezone"
           name="timezone"
           defaultValue={profile.timezone}
-          className="block w-full rounded-2xl border-2 border-gray-200 bg-white px-4 py-3 text-sm focus:border-primary focus:outline-none"
         >
           {TIMEZONE_OPTIONS.map((group) => (
             <optgroup key={group.group} label={group.group}>
@@ -123,16 +107,16 @@ export function SettingsForm({ profile }: { profile: UserProfile }) {
               ))}
             </optgroup>
           ))}
-        </select>
-      </div>
+        </Select>
+      </Field>
 
-      <button
+      <Button
         type="submit"
         disabled={isPending}
-        className="w-full rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-dark disabled:opacity-50"
+        className="w-full"
       >
         {isPending ? "Saving..." : "Save Changes"}
-      </button>
+      </Button>
     </form>
   );
 }

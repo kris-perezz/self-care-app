@@ -4,6 +4,7 @@ import { useState } from "react";
 import { FilterButton } from "@/components/filter-button";
 import { ReflectionCard } from "./reflection-card";
 import type { Reflection } from "@/types";
+import { EmptyState, Input } from "@/components/ui";
 
 type TypeFilter = "all" | "mood" | "prompted" | "freewrite";
 
@@ -31,12 +32,11 @@ export function ReflectionFilters({
 
   return (
     <div className="space-y-3">
-      <input
+      <Input
         type="text"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Search reflections..."
-        className="w-full rounded-2xl border-2 border-gray-200 bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"
       />
 
       <div className="flex gap-2">
@@ -57,7 +57,7 @@ export function ReflectionFilters({
         ))}
       </div>
 
-      <p className="text-xs text-gray-500">
+      <p className="text-tiny text-neutral-700/70">
         {filtered.length} reflection{filtered.length !== 1 ? "s" : ""}
       </p>
 
@@ -68,11 +68,7 @@ export function ReflectionFilters({
           ))}
         </div>
       ) : (
-        <div className="rounded-2xl border-2 border-dashed border-gray-300 p-6 text-center">
-          <p className="text-sm text-gray-500">
-            No reflections match your search.
-          </p>
-        </div>
+        <EmptyState message="No reflections match your search." />
       )}
     </div>
   );

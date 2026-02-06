@@ -3,12 +3,14 @@
 import { useTransition } from "react";
 import { addPresetReward } from "./actions";
 import { formatCurrency } from "@/lib/currency";
+import { Card, FluentEmoji } from "@/components/ui";
+import { EMOJI } from "@/lib/emoji";
 
 const PRESETS = [
-  { name: "Coffee treat", emoji: "☕", price: 700 },
-  { name: "New book", emoji: "📚", price: 1000 },
-  { name: "Face mask", emoji: "🧖", price: 500 },
-  { name: "Movie night", emoji: "🎬", price: 1500 },
+  { name: "Coffee treat", emoji: EMOJI.coffee, price: 700 },
+  { name: "New book", emoji: EMOJI.books, price: 1000 },
+  { name: "Face mask", emoji: EMOJI.spa, price: 500 },
+  { name: "Movie night", emoji: EMOJI.movie, price: 1500 },
 ];
 
 export function PresetRewards() {
@@ -22,20 +24,26 @@ export function PresetRewards() {
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-bold text-gray-900">Suggestions</h3>
+      <h3 className="heading-section text-neutral-900">Suggestions</h3>
       <div className="grid grid-cols-2 gap-2">
         {PRESETS.map((preset) => (
           <button
             key={preset.name}
             onClick={() => handleAdd(preset)}
             disabled={isPending}
-            className="flex items-center gap-2 rounded-2xl border-2 border-gray-200 bg-white p-3 text-left hover:border-primary disabled:opacity-50"
+            className="text-left"
           >
-            <span className="text-lg">{preset.emoji}</span>
-            <div>
-              <p className="text-sm font-medium text-gray-700">{preset.name}</p>
-              <p className="text-xs text-gray-400">{formatCurrency(preset.price)}</p>
-            </div>
+            <Card
+              variant="standard"
+              interactive
+              className="flex items-center gap-2 p-3 disabled:opacity-50"
+            >
+              <FluentEmoji emoji={preset.emoji} size={20} />
+              <div>
+                <p className="text-small text-neutral-900">{preset.name}</p>
+                <p className="text-tiny text-neutral-700/70">{formatCurrency(preset.price)}</p>
+              </div>
+            </Card>
           </button>
         ))}
       </div>

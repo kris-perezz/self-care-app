@@ -1,8 +1,8 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { EMOJI } from "@/lib/emoji";
 
 export type RewardActionState = {
   error: string | null;
@@ -22,9 +22,9 @@ export async function createReward(
   }
 
   const name = formData.get("name") as string;
-  const emoji = (formData.get("emoji") as string) || "🎁";
+  const emoji = (formData.get("emoji") as string) || EMOJI.gift;
   const priceStr = formData.get("price") as string;
-  const price = Math.round(parseFloat(priceStr) * 100); // Convert dollars to cents
+  const price = Math.round(parseFloat(priceStr) * 100);
 
   if (!name || name.trim().length === 0) {
     return { error: "Name is required" };
@@ -34,7 +34,7 @@ export async function createReward(
     return { error: "Price must be at least $1.00" };
   }
 
-  // Check if user has any active reward — if not, make this one active
+  // If there is no active reward yet, set the new one active by default.
   const { data: existing } = await supabase
     .from("rewards")
     .select("id")
@@ -113,14 +113,12 @@ export async function setActiveReward(rewardId: string): Promise<RewardActionSta
     return { error: "Not authenticated" };
   }
 
-  // Deactivate all current active rewards
   await supabase
     .from("rewards")
     .update({ is_active: false })
     .eq("user_id", user.id)
     .eq("is_active", true);
 
-  // Activate the selected one
   const { error } = await supabase
     .from("rewards")
     .update({ is_active: true })
@@ -146,7 +144,6 @@ export async function purchaseReward(rewardId: string): Promise<RewardActionStat
     return { error: "Not authenticated" };
   }
 
-  // Get reward
   const { data: reward } = await supabase
     .from("rewards")
     .select("price, purchased_at")
@@ -162,7 +159,6 @@ export async function purchaseReward(rewardId: string): Promise<RewardActionStat
     return { error: "Already purchased" };
   }
 
-  // Compute balance
   const { data: transactions } = await supabase
     .from("currency_transactions")
     .select("amount")
@@ -174,15 +170,12 @@ export async function purchaseReward(rewardId: string): Promise<RewardActionStat
     return { error: "Insufficient balance" };
   }
 
-  // Deduct and mark as purchased
-  const { error: txError } = await supabase
-    .from("currency_transactions")
-    .insert({
-      user_id: user.id,
-      amount: -reward.price,
-      source: "reward_spend",
-      reference_id: rewardId,
-    });
+  const { error: txError } = await supabase.from("currency_transactions").insert({
+    user_id: user.id,
+    amount: -reward.price,
+    source: "reward_spend",
+    reference_id: rewardId,
+  });
 
   if (txError) {
     return { error: txError.message };

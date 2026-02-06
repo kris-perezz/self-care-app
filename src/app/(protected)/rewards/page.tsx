@@ -5,6 +5,7 @@ import { RewardCard } from "./reward-card";
 import { NewRewardForm } from "./new-reward-form";
 import { PresetRewards } from "./preset-rewards";
 import type { Reward } from "@/types";
+import { Card, EmptyState, FluentEmoji } from "@/components/ui";
 
 export default async function RewardsPage() {
   const supabase = await createClient();
@@ -54,9 +55,7 @@ export default async function RewardsPage() {
             ))}
           </div>
         ) : (
-          <p className="text-small text-neutral-700">
-            Add a reward to start saving toward something!
-          </p>
+          <EmptyState message="Add a reward to start saving toward something!" />
         )}
 
         <NewRewardForm />
@@ -69,18 +68,21 @@ export default async function RewardsPage() {
           <h3 className="heading-section text-neutral-700">Purchased</h3>
           <div className="space-y-2">
             {purchasedRewards.map((reward) => (
-              <div
+              <Card
                 key={reward.id}
-                className="flex items-center gap-3 rounded-2xl border-2 border-neutral-100 bg-white p-4 shadow-card opacity-60"
+                variant="muted"
+                className="flex items-center gap-3 opacity-60"
               >
-                <span className="text-2xl grayscale">{reward.emoji}</span>
+                <span className="grayscale">
+                  <FluentEmoji emoji={reward.emoji} size={24} />
+                </span>
                 <span className="flex-1 text-small text-neutral-700 line-through">
                   {reward.name}
                 </span>
-                <span className="text-tiny text-neutral-500">
+                <span className="text-tiny text-neutral-700/70">
                   {formatCurrency(reward.price)}
                 </span>
-              </div>
+              </Card>
             ))}
           </div>
         </div>

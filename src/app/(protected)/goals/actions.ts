@@ -1,10 +1,11 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import { DIFFICULTY_REWARDS, type Difficulty } from "@/lib/currency";
 import { computeStreak } from "@/lib/streak";
+import { EMOJI } from "@/lib/emoji";
 
 export type ActionState = {
   error: string | null;
@@ -26,6 +27,7 @@ export async function createGoal(
   const title = formData.get("title") as string;
   const description = (formData.get("description") as string) || null;
   const difficulty = (formData.get("difficulty") as string) || "medium";
+  const emoji = (formData.get("emoji") as string) || EMOJI.target;
   const scheduledTime = (formData.get("scheduled_time") as string) || null;
   const scheduledDate = (formData.get("scheduled_date") as string) || null;
 
@@ -38,16 +40,18 @@ export async function createGoal(
   }
 
   const currencyReward = DIFFICULTY_REWARDS[difficulty as Difficulty];
-
-  const { error } = await supabase.from("goals").insert({
+  const payload = {
     user_id: user.id,
     title: title.trim(),
     description: description?.trim() || null,
     difficulty,
+    emoji,
     currency_reward: currencyReward,
     scheduled_time: scheduledTime || null,
     scheduled_date: scheduledDate || null,
-  });
+  };
+
+  const { error } = await supabase.from("goals").insert(payload);
 
   if (error) {
     return { error: error.message };
@@ -67,7 +71,7 @@ export async function completeGoal(goalId: string): Promise<ActionState> {
     return { error: "Not authenticated" };
   }
 
-  // Fetch the goal to get the reward amount and verify ownership
+  // Fetch the goal to get the reward amount and verify ownership.
   const { data: goal, error: fetchError } = await supabase
     .from("goals")
     .select("currency_reward, completed_at")
@@ -83,8 +87,8 @@ export async function completeGoal(goalId: string): Promise<ActionState> {
     return { error: "Goal is already completed" };
   }
 
-  // Mark goal as completed — the .is('completed_at', null) filter
-  // prevents race conditions: only the first request succeeds
+  // Mark goal as completed; the .is("completed_at", null) filter
+  // prevents race conditions so only the first request succeeds.
   const { data: updated, error: updateError } = await supabase
     .from("goals")
     .update({ completed_at: new Date().toISOString() })
@@ -97,21 +101,17 @@ export async function completeGoal(goalId: string): Promise<ActionState> {
     return { error: "Goal already completed" };
   }
 
-  // Record the currency transaction
-  const { error: txError } = await supabase
-    .from("currency_transactions")
-    .insert({
-      user_id: user.id,
-      amount: goal.currency_reward,
-      source: "goal",
-      reference_id: goalId,
-    });
+  const { error: txError } = await supabase.from("currency_transactions").insert({
+    user_id: user.id,
+    amount: goal.currency_reward,
+    source: "goal",
+    reference_id: goalId,
+  });
 
   if (txError) {
     return { error: txError.message };
   }
 
-  // Update streak
   const { data: profile } = await supabase
     .from("profiles")
     .select("current_streak, longest_streak, last_active_date, timezone")
@@ -158,6 +158,7 @@ export async function updateGoal(
   const title = formData.get("title") as string;
   const description = (formData.get("description") as string) || null;
   const difficulty = (formData.get("difficulty") as string) || "medium";
+  const emoji = (formData.get("emoji") as string) || EMOJI.target;
   const scheduledTime = (formData.get("scheduled_time") as string) || null;
   const scheduledDate = (formData.get("scheduled_date") as string) || null;
 
@@ -170,17 +171,19 @@ export async function updateGoal(
   }
 
   const currencyReward = DIFFICULTY_REWARDS[difficulty as Difficulty];
+  const payload = {
+    title: title.trim(),
+    description: description?.trim() || null,
+    difficulty,
+    emoji,
+    currency_reward: currencyReward,
+    scheduled_time: scheduledTime || null,
+    scheduled_date: scheduledDate || null,
+  };
 
   const { error } = await supabase
     .from("goals")
-    .update({
-      title: title.trim(),
-      description: description?.trim() || null,
-      difficulty,
-      currency_reward: currencyReward,
-      scheduled_time: scheduledTime || null,
-      scheduled_date: scheduledDate || null,
-    })
+    .update(payload)
     .eq("id", goalId)
     .eq("user_id", user.id);
 

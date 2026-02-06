@@ -1,5 +1,7 @@
 "use client";
 
+import { Button } from "@/components/ui";
+
 export function FilterButton({
   active,
   onClick,
@@ -10,15 +12,13 @@ export function FilterButton({
   children: React.ReactNode;
 }) {
   return (
-    <button
+    <Button
       onClick={onClick}
-      className={`interactive-button rounded-xl px-3 py-1.5 text-small transition-all duration-200 ease-in-out ${
-        active
-          ? "bg-primary-500 text-white shadow-button"
-          : "bg-neutral-50 text-neutral-700 shadow-card hover:bg-neutral-100"
-      }`}
+      variant={active ? "primary" : "ghostAccent"}
+      size="sm"
+      className={active ? "" : "border-neutral-100 bg-neutral-50 text-neutral-700"}
     >
       {children}
-    </button>
+    </Button>
   );
 }

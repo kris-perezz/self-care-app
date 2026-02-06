@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import { formatCurrency } from "@/lib/currency";
 import { getToday } from "@/lib/streak";
 import { StatCards } from "./stat-cards";
 import { RewardProgress } from "./reward-progress";
@@ -59,10 +58,10 @@ export default async function HomePage() {
   const completedToday = todaysGoals.filter((g) => g.completed_at !== null).length;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div>
         <h2 className="heading-large text-neutral-900">Today</h2>
-        <p className="text-sm text-gray-500">
+        <p className="text-tiny text-neutral-700/70">
           {new Date().toLocaleDateString("en-US", {
             weekday: "long",
             month: "long",

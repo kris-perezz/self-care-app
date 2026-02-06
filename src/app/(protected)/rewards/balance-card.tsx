@@ -1,12 +1,15 @@
 import { formatCurrency } from "@/lib/currency";
+import { FluentEmoji, StatCard } from "@/components/ui";
+import { EMOJI } from "@/lib/emoji";
 
 export function BalanceCard({ balance }: { balance: number }) {
   return (
-    <div className="rounded-2xl bg-accent-100 p-4 shadow-card">
-      <p className="text-tiny text-accent-900">Your balance</p>
-      <p className="mt-1 text-2xl font-bold text-accent-900">
-        💰 {formatCurrency(balance)}
-      </p>
-    </div>
+    <StatCard
+      variant="tintAccent"
+      label="Your balance"
+      value={formatCurrency(balance)}
+      icon={<FluentEmoji emoji={EMOJI.gift} size={18} />}
+      className="!space-y-0.5"
+    />
   );
 }

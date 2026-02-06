@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { GoalCard } from "./goal-card";
 import type { Goal } from "@/types";
+import { CaretRight } from "@phosphor-icons/react/dist/ssr";
 
 export function CompletedSection({ goals }: { goals: Goal[] }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,17 +14,13 @@ export function CompletedSection({ goals }: { goals: Goal[] }) {
     <div>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center gap-2 py-2 text-sm font-medium text-gray-500"
+        className="flex w-full items-center gap-2 py-2 text-small text-neutral-700/70"
       >
-        <svg
-          className={`h-4 w-4 transition-transform ${isOpen ? "rotate-90" : ""}`}
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={2}
-          stroke="currentColor"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-        </svg>
+        <CaretRight
+          size={16}
+          weight="bold"
+          className={`transition-transform ${isOpen ? "rotate-90" : ""}`}
+        />
         Completed ({goals.length})
       </button>
       {isOpen && (
