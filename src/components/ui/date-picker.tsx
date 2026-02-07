@@ -11,7 +11,7 @@ export interface DatePickerProps {
 
 export function DatePicker({ name, value, onChange, className }: DatePickerProps) {
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("space-y-2 min-w-0", className)}>
       <input
         type="date"
         name={name}
@@ -19,8 +19,15 @@ export function DatePicker({ name, value, onChange, className }: DatePickerProps
         onChange={(event) => {
           onChange(event.target.value ? event.target.value : null);
         }}
-        className="block w-full rounded-xl border-2 border-neutral-100 bg-neutral-50 px-4 py-2.5 text-body text-neutral-900 outline-none transition-all duration-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+        className="block w-full min-w-0 max-w-full rounded-xl border-2 border-neutral-100 bg-neutral-50 px-4 py-2.5 text-body text-neutral-900 outline-none transition-all duration-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
       />
+      <button
+        type="button"
+        className="text-tiny text-neutral-700/70 hover:text-neutral-900"
+        onClick={() => onChange(null)}
+      >
+        Clear date
+      </button>
     </div>
   );
 }

@@ -34,7 +34,7 @@ export function RewardCard({
         <FluentEmoji emoji={reward.emoji} size={28} />
 
         <div className="flex-1">
-          <div className="flex items-center gap-2">
+          <div className="mb-1 flex flex-wrap items-center gap-2">
             <span className="text-small text-neutral-900">{reward.name}</span>
             {reward.is_active ? <Badge variant="status">Active goal</Badge> : null}
           </div>
@@ -54,6 +54,7 @@ export function RewardCard({
               }
               disabled={isSettingActive}
               variant="neutral"
+              className="border-2 border-neutral-100 hover:border-neutral-200"
               title="Set as active goal"
               aria-label="Set as active goal"
             >
@@ -68,7 +69,8 @@ export function RewardCard({
               })
             }
             disabled={isDeleting}
-            variant="accent"
+            variant="neutral"
+            className="border-2 border-neutral-100 text-neutral-500 hover:border-warning-200 hover:bg-warning-100 hover:text-neutral-900"
             title="Delete reward"
             aria-label="Delete reward"
           >

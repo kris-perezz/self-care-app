@@ -10,10 +10,12 @@ export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 const difficultyClasses: Record<Exclude<BadgeVariant, "status">, string> = {
-  easy: "rounded-[20px] bg-primary-100 px-3 py-1 text-[13px] font-semibold text-primary-700",
+  easy:
+    "ui-compact-pill h-[22px] rounded-[18px] bg-primary-100 px-2.5 text-[12px] font-semibold text-primary-700",
   medium:
-    "rounded-[20px] bg-secondary-100 px-3 py-1 text-[13px] font-semibold text-secondary-900",
-  hard: "rounded-[20px] bg-accent-100 px-3 py-1 text-[13px] font-semibold text-accent-900",
+    "ui-compact-pill h-[22px] rounded-[18px] bg-secondary-100 px-2.5 text-[12px] font-semibold text-secondary-900",
+  hard:
+    "ui-compact-pill h-[22px] rounded-[18px] bg-accent-100 px-2.5 text-[12px] font-semibold text-accent-900",
 };
 
 const statusColorClasses: Record<BadgeStatusColor, string> = {
@@ -27,7 +29,7 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
     const variantClass =
       variant === "status"
         ? cn(
-            "rounded-full px-2.5 py-1 text-xs font-semibold",
+            "ui-compact-pill h-[22px] rounded-full px-2.5 text-[12px] font-semibold",
             statusColorClasses[statusColor]
           )
         : difficultyClasses[variant];
@@ -38,7 +40,7 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
         className={cn("inline-flex items-center", variantClass, className)}
         {...props}
       >
-        {children}
+        <span className="ui-compact-label">{children}</span>
       </span>
     );
   }

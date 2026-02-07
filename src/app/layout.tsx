@@ -19,6 +19,12 @@ const epilogue = Epilogue({
 export const metadata: Metadata = {
   title: "Self Care App",
   description: "Track your self-care goals, reflect, and earn rewards",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Self Care App",
+  },
 };
 
 export default function RootLayout({

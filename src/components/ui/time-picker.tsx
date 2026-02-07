@@ -21,7 +21,7 @@ export function TimePicker({
   const step = safeStep * 60;
 
   return (
-    <div className={cn("space-y-2", className)}>
+    <div className={cn("space-y-2 min-w-0", className)}>
       <input
         type="time"
         name={name}
@@ -30,7 +30,7 @@ export function TimePicker({
         onChange={(event) => {
           onChange(event.target.value ? event.target.value : null);
         }}
-        className="block w-full rounded-xl border-2 border-neutral-100 bg-neutral-50 px-4 py-2.5 text-body text-neutral-900 outline-none transition-all duration-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+        className="block w-full min-w-0 max-w-full rounded-xl border-2 border-neutral-100 bg-neutral-50 px-4 py-2.5 text-body text-neutral-900 outline-none transition-all duration-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
       />
       <button
         type="button"

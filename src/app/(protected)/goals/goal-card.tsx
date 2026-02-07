@@ -9,9 +9,20 @@ import type { Goal } from "@/types";
 import { Badge, Card, FluentEmoji, IconButton } from "@/components/ui";
 import { EMOJI } from "@/lib/emoji";
 
-export function GoalCard({ goal, compact }: { goal: Goal; compact?: boolean }) {
+type GoalCardActions = "full" | "complete" | "none";
+
+export function GoalCard({
+  goal,
+  linkToDetails = false,
+  actions = "full",
+}: {
+  goal: Goal;
+  linkToDetails?: boolean;
+  actions?: GoalCardActions;
+}) {
   const [isPending, startTransition] = useTransition();
   const [isDeleting, startDeleteTransition] = useTransition();
+  const detailsHref = `/goals/${goal.id}/view`;
 
   function handleComplete() {
     startTransition(() => {
@@ -32,14 +43,25 @@ export function GoalCard({ goal, compact }: { goal: Goal; compact?: boolean }) {
           <FluentEmoji emoji={goal.emoji || EMOJI.target} size={24} label={goal.title} />
         </div>
 
+      {linkToDetails ? (
+        <Link href={detailsHref} className="min-w-0 flex-1">
+          <p className="text-body text-neutral-700 line-through">{goal.title}</p>
+          {goal.description ? (
+            <p className="mt-0.5 truncate text-tiny text-neutral-700/70 line-through">
+              {goal.description}
+            </p>
+          ) : null}
+        </Link>
+      ) : (
         <div className="min-w-0 flex-1">
           <p className="text-body text-neutral-700 line-through">{goal.title}</p>
-          {!compact && goal.description ? (
+          {goal.description ? (
             <p className="mt-0.5 truncate text-tiny text-neutral-700/70 line-through">
               {goal.description}
             </p>
           ) : null}
         </div>
+      )}
 
         <div className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-primary-500 text-white">
           <Check size={14} weight="bold" />
@@ -54,31 +76,53 @@ export function GoalCard({ goal, compact }: { goal: Goal; compact?: boolean }) {
         <FluentEmoji emoji={goal.emoji || EMOJI.target} size={24} label={goal.title} />
       </div>
 
-      <div className="min-w-0 flex-1">
-        <p className="text-body font-medium text-neutral-900">{goal.title}</p>
-        {!compact && goal.description ? (
-          <p className="mt-0.5 truncate text-tiny text-neutral-700/70">{goal.description}</p>
-        ) : null}
+      {linkToDetails ? (
+        <Link href={detailsHref} className="min-w-0 flex-1">
+          <p className="text-body font-medium text-neutral-900">{goal.title}</p>
+          {goal.description ? (
+            <p className="mt-0.5 truncate text-tiny text-neutral-700/70">{goal.description}</p>
+          ) : null}
 
-        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
           {goal.scheduled_time ? (
-            <span className="inline-flex items-center gap-1 rounded-lg bg-neutral-100 px-2 py-0.5 text-tiny text-neutral-700/70">
+            <span className="inline-flex h-5 items-center gap-1 rounded-lg bg-neutral-100 px-2 text-[11px] font-medium leading-none text-neutral-700/70">
               <Clock size={12} weight="regular" />
               {formatTime(goal.scheduled_time)}
             </span>
           ) : null}
 
-          <Badge variant={goal.difficulty}>
-            {`${goal.difficulty.toUpperCase()} - ${formatCurrency(goal.currency_reward)}`}
-          </Badge>
-        </div>
-      </div>
+            <Badge variant={goal.difficulty}>
+              {`${goal.difficulty.toUpperCase()} - ${formatCurrency(goal.currency_reward)}`}
+            </Badge>
+          </div>
+        </Link>
+      ) : (
+        <div className="min-w-0 flex-1">
+          <p className="text-body font-medium text-neutral-900">{goal.title}</p>
+          {goal.description ? (
+            <p className="mt-0.5 truncate text-tiny text-neutral-700/70">{goal.description}</p>
+          ) : null}
 
-      {!compact ? (
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+          {goal.scheduled_time ? (
+            <span className="inline-flex h-5 items-center gap-1 rounded-lg bg-neutral-100 px-2 text-[11px] font-medium leading-none text-neutral-700/70">
+              <Clock size={12} weight="regular" />
+              {formatTime(goal.scheduled_time)}
+            </span>
+          ) : null}
+
+            <Badge variant={goal.difficulty}>
+              {`${goal.difficulty.toUpperCase()} - ${formatCurrency(goal.currency_reward)}`}
+            </Badge>
+          </div>
+        </div>
+      )}
+
+      {actions === "full" ? (
         <div className="ml-auto flex shrink-0 items-center gap-1">
           <Link
             href={`/goals/${goal.id}/edit`}
-            className="interactive-icon flex h-8 w-8 items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
+            className="interactive-icon flex h-8 w-8 items-center justify-center rounded-lg border-2 border-neutral-100 text-neutral-500 hover:border-neutral-200 hover:bg-neutral-100 hover:text-neutral-900"
             aria-label="Edit goal"
           >
             <PencilSimple size={16} weight="regular" />
@@ -87,7 +131,8 @@ export function GoalCard({ goal, compact }: { goal: Goal; compact?: boolean }) {
           <IconButton
             onClick={handleDelete}
             disabled={isDeleting}
-            variant="accent"
+            variant="neutral"
+            className="border-2 border-neutral-100 text-neutral-500 hover:border-warning-200 hover:bg-warning-100 hover:text-neutral-900"
             aria-label="Delete goal"
             title="Delete goal"
           >
@@ -112,7 +157,7 @@ export function GoalCard({ goal, compact }: { goal: Goal; compact?: boolean }) {
             )}
           </IconButton>
         </div>
-      ) : (
+      ) : actions === "complete" ? (
         <IconButton
           onClick={handleComplete}
           disabled={isPending}
@@ -126,7 +171,7 @@ export function GoalCard({ goal, compact }: { goal: Goal; compact?: boolean }) {
             <Check size={14} weight="bold" />
           )}
         </IconButton>
-      )}
+      ) : null}
     </Card>
   );
 }

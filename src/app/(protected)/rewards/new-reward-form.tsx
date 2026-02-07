@@ -46,7 +46,7 @@ export function NewRewardForm() {
           <Input id="name" name="name" type="text" required placeholder="Reward name" />
         </Field>
 
-        <Field label="Price (USD)" htmlFor="price">
+        <Field label="Price" htmlFor="price">
           <Input
             id="price"
             name="price"

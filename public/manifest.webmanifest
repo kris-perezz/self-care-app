@@ -1,0 +1,10 @@
+{
+  "name": "Self Care App",
+  "short_name": "Self Care",
+  "description": "Track your self-care goals, reflect, and earn rewards",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f2ea",
+  "theme_color": "#f7f2ea"
+}

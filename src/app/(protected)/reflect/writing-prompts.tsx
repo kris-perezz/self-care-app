@@ -17,7 +17,7 @@ export function WritingPrompts() {
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="heading-section text-neutral-900">Writing prompts</h3>
-        <Button onClick={shuffle} variant="secondary" size="sm">
+        <Button onClick={shuffle} variant="secondary" size="sm" className="gap-2.5">
           <ArrowClockwise size={14} weight="bold" />
           Shuffle
         </Button>

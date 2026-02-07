@@ -5,6 +5,10 @@ import { CompletedSection } from "./completed-section";
 import type { Goal } from "@/types";
 import { Button, EmptyState, PageHeader } from "@/components/ui";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
+
 export default async function GoalsPage() {
   const supabase = await createClient();
   const {

@@ -15,8 +15,20 @@ export function TodaysGoals({ goals }: { goals: Goal[] }) {
 
       {goals.length > 0 ? (
         <div className="space-y-3">
-          {goals.map((goal) => (
-            <GoalCard key={goal.id} goal={goal} compact />
+          {[...goals]
+            .sort((a, b) => {
+              const aDone = a.completed_at !== null;
+              const bDone = b.completed_at !== null;
+              if (aDone === bDone) return 0;
+              return aDone ? 1 : -1;
+            })
+            .map((goal) => (
+            <GoalCard
+              key={goal.id}
+              goal={goal}
+              linkToDetails
+              actions="full"
+            />
           ))}
         </div>
       ) : (

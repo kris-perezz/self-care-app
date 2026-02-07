@@ -9,6 +9,7 @@ import { EMOJI } from "@/lib/emoji";
 
 export type ActionState = {
   error: string | null;
+  success?: boolean;
 };
 
 export async function createGoal(
@@ -21,7 +22,7 @@ export async function createGoal(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "Not authenticated" };
+    return { error: "Not authenticated", success: false };
   }
 
   const title = formData.get("title") as string;
@@ -32,11 +33,11 @@ export async function createGoal(
   const scheduledDate = (formData.get("scheduled_date") as string) || null;
 
   if (!title || title.trim().length === 0) {
-    return { error: "Title is required" };
+    return { error: "Title is required", success: false };
   }
 
   if (!["easy", "medium", "hard"].includes(difficulty)) {
-    return { error: "Invalid difficulty" };
+    return { error: "Invalid difficulty", success: false };
   }
 
   const currencyReward = DIFFICULTY_REWARDS[difficulty as Difficulty];
@@ -54,11 +55,13 @@ export async function createGoal(
   const { error } = await supabase.from("goals").insert(payload);
 
   if (error) {
-    return { error: error.message };
+    return { error: error.message, success: false };
   }
 
   revalidatePath("/goals");
-  redirect("/goals");
+  revalidatePath("/home");
+  revalidatePath("/", "layout");
+  return { error: null, success: true };
 }
 
 export async function completeGoal(goalId: string): Promise<ActionState> {

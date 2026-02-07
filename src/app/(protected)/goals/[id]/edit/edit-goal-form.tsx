@@ -90,8 +90,8 @@ export function EditGoalForm({ goal }: { goal: Goal }) {
           </div>
         </Field>
 
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Date" hint="(optional)">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field label="Date" hint="(optional)" className="min-w-0">
             <DatePicker
               name="scheduled_date"
               value={scheduledDate}
@@ -99,7 +99,7 @@ export function EditGoalForm({ goal }: { goal: Goal }) {
             />
           </Field>
 
-          <Field label="Time" hint="(optional)">
+          <Field label="Time" hint="(optional)" className="min-w-0">
             <TimePicker
               name="scheduled_time"
               value={scheduledTime}

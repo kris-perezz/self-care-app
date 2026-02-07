@@ -1,6 +1,7 @@
 import {
   ButtonHTMLAttributes,
   type ReactElement,
+  type ReactNode,
   cloneElement,
   forwardRef,
   isValidElement,
@@ -34,7 +35,7 @@ const variantClasses: Record<ButtonVariant, string> = {
 
 const sizeClasses: Record<ButtonSize, string> = {
   md: "rounded-3xl px-7 py-3.5 text-emphasis",
-  sm: "rounded-3xl px-4 py-2 text-small",
+  sm: "ui-compact-pill h-8 rounded-3xl px-4 text-[12px] font-semibold",
   icon: "h-10 w-10 rounded-lg p-0 text-small",
 };
 
@@ -51,16 +52,18 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     );
 
     if (asChild && isValidElement(children)) {
-      const child = children as ReactElement<{ className?: string }>;
+      const child = children as ReactElement<{ className?: string; children?: ReactNode }>;
       return cloneElement(child, {
         ...(props as Record<string, unknown>),
         className: cn(child.props.className, classes),
+        children:
+          size === "sm" ? <span className="ui-compact-label">{child.props.children}</span> : child.props.children,
       });
     }
 
     return (
       <button ref={ref} type={type} className={classes} {...props}>
-        {children}
+        {size === "sm" ? <span className="ui-compact-label">{children}</span> : children}
       </button>
     );
   }
