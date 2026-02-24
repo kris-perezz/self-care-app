@@ -1,10 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
-import { formatCurrency } from "@/lib/currency";
 import { getToday } from "@/lib/streak";
 import { MoodCheckin } from "./mood-checkin";
 import { WritingPrompts } from "./writing-prompts";
 import { ProgressCard } from "./progress-card";
 import Link from "next/link";
+import { Card, FluentEmoji, PageHeader } from "@/components/ui";
+import { EMOJI } from "@/lib/emoji";
 
 export default async function ReflectPage() {
   const supabase = await createClient();
@@ -23,7 +24,6 @@ export default async function ReflectPage() {
   const timezone = profile?.timezone ?? "UTC";
   const today = getToday(timezone);
 
-  // Get today's reflections for progress display
   const startOfDay = `${today}T00:00:00`;
   const { data: todaysReflections } = await supabase
     .from("reflections")
@@ -37,26 +37,25 @@ export default async function ReflectPage() {
 
   return (
     <div className="space-y-4">
-      <h2 className="heading-large text-neutral-900">Reflect</h2>
+      <PageHeader title="Reflect" />
 
       <MoodCheckin hasMoodToday={hasMoodToday} />
 
       <div className="grid grid-cols-2 gap-3">
-        <Link
-          href="/reflect/write?type=prompted"
-          className="flex flex-col items-center gap-2 rounded-2xl border-2 border-gray-200 bg-white p-4 hover:border-primary"
-        >
-          <span className="text-2xl">💭</span>
-          <span className="text-sm font-medium text-gray-700">Prompted</span>
-          <span className="text-xs text-gray-400">guided writing</span>
+        <Link href="/reflect/write?type=prompted">
+          <Card variant="standard" interactive className="flex flex-col items-center gap-2">
+            <FluentEmoji emoji={EMOJI.books} size={24} />
+            <span className="text-small text-neutral-900">Prompted</span>
+            <span className="text-tiny text-neutral-700/70">guided writing</span>
+          </Card>
         </Link>
-        <Link
-          href="/reflect/write?type=freewrite"
-          className="flex flex-col items-center gap-2 rounded-2xl border-2 border-gray-200 bg-white p-4 hover:border-primary"
-        >
-          <span className="text-2xl">✍️</span>
-          <span className="text-sm font-medium text-gray-700">Free write</span>
-          <span className="text-xs text-gray-400">your thoughts</span>
+
+        <Link href="/reflect/write?type=freewrite">
+          <Card variant="standard" interactive className="flex flex-col items-center gap-2">
+            <FluentEmoji emoji={EMOJI.writing} size={24} />
+            <span className="text-small text-neutral-900">Free write</span>
+            <span className="text-tiny text-neutral-700/70">your thoughts</span>
+          </Card>
         </Link>
       </div>
 

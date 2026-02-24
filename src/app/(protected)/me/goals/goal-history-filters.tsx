@@ -4,6 +4,7 @@ import { useState } from "react";
 import { FilterButton } from "@/components/filter-button";
 import { GoalHistoryCard } from "./goal-history-card";
 import type { Goal } from "@/types";
+import { EmptyState } from "@/components/ui";
 
 type DifficultyFilter = "all" | "easy" | "medium" | "hard";
 type DateFilter = "week" | "month" | "all";
@@ -64,7 +65,7 @@ export function GoalHistoryFilters({ goals }: { goals: Goal[] }) {
         ))}
       </div>
 
-      <p className="text-xs text-gray-500">
+      <p className="text-tiny text-neutral-700/70">
         {filtered.length} completed goal{filtered.length !== 1 ? "s" : ""}
       </p>
 
@@ -75,11 +76,7 @@ export function GoalHistoryFilters({ goals }: { goals: Goal[] }) {
           ))}
         </div>
       ) : (
-        <div className="rounded-2xl border-2 border-dashed border-gray-300 p-6 text-center">
-          <p className="text-sm text-gray-500">
-            No goals match these filters.
-          </p>
-        </div>
+        <EmptyState message="No goals match these filters." />
       )}
     </div>
   );

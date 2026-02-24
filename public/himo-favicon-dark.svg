@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,900&amp;display=swap');
+    </style>
+  </defs>
+  <rect width="32" height="32" rx="6" fill="#1f1f1f"/>
+  <text x="16" y="16" font-family="'Fraunces', Georgia, serif" font-size="11" font-weight="900" font-style="italic" fill="#fdfaf7" text-anchor="middle" dominant-baseline="central">himo</text>
+</svg>

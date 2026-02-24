@@ -1,120 +1,120 @@
 "use client";
 
-import { useActionState } from "react";
-import Link from "next/link";
+import { useActionState, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createGoal, type ActionState } from "../actions";
 import { DIFFICULTY_REWARDS, formatCurrency } from "@/lib/currency";
+import {
+  Badge,
+  Button,
+  EmojiPicker,
+  Field,
+  PageHeader,
+  Textarea,
+  Input,
+} from "@/components/ui";
+import { DatePicker } from "@/components/ui/date-picker";
+import { TimePicker } from "@/components/ui/time-picker";
+import { EMOJI, GOAL_EMOJI_OPTIONS } from "@/lib/emoji";
 
-const initialState: ActionState = { error: null };
+const initialState: ActionState = { error: null, success: false };
 
 export default function NewGoalPage() {
   const [state, formAction, isPending] = useActionState(createGoal, initialState);
+  const router = useRouter();
+  const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
+  const [scheduledDate, setScheduledDate] = useState<string | null>(null);
+  const [scheduledTime, setScheduledTime] = useState<string | null>(null);
+  const [emoji, setEmoji] = useState<string>(EMOJI.target);
+
+  useEffect(() => {
+    if (state.success) {
+      router.refresh();
+      router.push("/goals");
+    }
+  }, [router, state.success]);
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Link
-          href="/goals"
-          className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/50"
-          aria-label="Back to goals"
-        >
-          <svg className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-          </svg>
-        </Link>
-        <h2 className="heading-large text-neutral-900">New Goal</h2>
-      </div>
+      <PageHeader title="New Goal" backHref="/goals" backLabel="Back to goals" />
 
       <form action={formAction} className="space-y-4">
-        {state.error && (
-          <div className="rounded-2xl bg-red-50 p-3 text-sm text-red-700">
+        {state.error ? (
+          <div className="rounded-2xl bg-warning-50 p-3 text-small text-warning-900">
             {state.error}
           </div>
-        )}
+        ) : null}
 
-        <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-            Title
-          </label>
-          <input
+        <Field label="Goal Emoji">
+          <EmojiPicker name="emoji" value={emoji} onChange={setEmoji} options={[...GOAL_EMOJI_OPTIONS]} />
+        </Field>
+
+        <Field label="Title" htmlFor="title">
+          <Input
             id="title"
             name="title"
             type="text"
             required
-            className="mt-1 block w-full rounded-2xl border-2 border-gray-200 bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"
             placeholder="e.g., Drink 8 glasses of water"
           />
-        </div>
+        </Field>
 
-        <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-            Description <span className="text-gray-400">(optional)</span>
-          </label>
-          <textarea
+        <Field label="Description" htmlFor="description" hint="(optional)">
+          <Textarea
             id="description"
             name="description"
             rows={3}
-            className="mt-1 block w-full rounded-2xl border-2 border-gray-200 bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"
             placeholder="Add some details or motivation..."
           />
-        </div>
+        </Field>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Difficulty</label>
+        <Field label="Difficulty">
+          <input type="hidden" name="difficulty" value={difficulty} />
           <div className="mt-2 flex gap-2">
-            {(["easy", "medium", "hard"] as const).map((d) => (
-              <label
-                key={d}
-                className="flex flex-1 cursor-pointer flex-col items-center gap-1 rounded-2xl border-2 border-gray-200 bg-white p-3 text-center transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/10"
-              >
-                <input
-                  type="radio"
-                  name="difficulty"
-                  value={d}
-                  defaultChecked={d === "medium"}
-                  className="sr-only"
-                />
-                <span className="text-sm font-medium capitalize">{d}</span>
-                <span className="text-xs text-gray-500">
-                  {formatCurrency(DIFFICULTY_REWARDS[d])}
-                </span>
-              </label>
-            ))}
+            {(["easy", "medium", "hard"] as const).map((level) => {
+              const selected = difficulty === level;
+              return (
+                <button
+                  key={level}
+                  type="button"
+                  onClick={() => setDifficulty(level)}
+                  className={`flex flex-1 cursor-pointer flex-col items-center gap-1 rounded-2xl border-2 p-3 text-center transition-colors ${
+                    selected
+                      ? "border-primary-500 bg-primary-50"
+                      : "border-neutral-100 bg-neutral-50"
+                  }`}
+                >
+                  <Badge variant={level}>{level.toUpperCase()}</Badge>
+                  <span className="text-tiny text-neutral-700/70">
+                    {formatCurrency(DIFFICULTY_REWARDS[level])}
+                  </span>
+                </button>
+              );
+            })}
           </div>
-        </div>
+        </Field>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label htmlFor="scheduled_date" className="block text-sm font-medium text-gray-700">
-              Date <span className="text-gray-400">(optional)</span>
-            </label>
-            <input
-              id="scheduled_date"
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field label="Date" hint="(optional)" className="min-w-0">
+            <DatePicker
               name="scheduled_date"
-              type="date"
-              className="mt-1 block w-full rounded-2xl border-2 border-gray-200 bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"
+              value={scheduledDate}
+              onChange={setScheduledDate}
             />
-          </div>
-          <div>
-            <label htmlFor="scheduled_time" className="block text-sm font-medium text-gray-700">
-              Time <span className="text-gray-400">(optional)</span>
-            </label>
-            <input
-              id="scheduled_time"
+          </Field>
+
+          <Field label="Time" hint="(optional)" className="min-w-0">
+            <TimePicker
               name="scheduled_time"
-              type="time"
-              className="mt-1 block w-full rounded-2xl border-2 border-gray-200 bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"
+              value={scheduledTime}
+              onChange={setScheduledTime}
             />
-          </div>
+          </Field>
         </div>
 
-        <button
-          type="submit"
-          disabled={isPending}
-          className="btn btn-primary w-full"
-        >
+        <Button type="submit" disabled={isPending} className="w-full">
           {isPending ? "Creating..." : "Create Goal"}
-        </button>
+        </Button>
       </form>
     </div>
   );

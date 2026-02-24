@@ -4,6 +4,7 @@ import { useState } from "react";
 import { FilterButton } from "@/components/filter-button";
 import { GoalCard } from "./goal-card";
 import type { Goal } from "@/types";
+import { EmptyState } from "@/components/ui";
 
 type Filter = "today" | "week" | "all";
 
@@ -44,15 +45,15 @@ export function GoalFilters({ goals }: { goals: Goal[] }) {
           ))}
         </div>
       ) : (
-        <div className="rounded-2xl border-2 border-dashed border-gray-300 p-6 text-center">
-          <p className="text-sm text-gray-500">
-            {filter === "today"
+        <EmptyState
+          message={
+            filter === "today"
               ? "No goals scheduled for today."
               : filter === "week"
               ? "No goals scheduled this week."
-              : "All goals completed! Add a new one to keep going."}
-          </p>
-        </div>
+              : "All goals completed! Add a new one to keep going."
+          }
+        />
       )}
     </div>
   );

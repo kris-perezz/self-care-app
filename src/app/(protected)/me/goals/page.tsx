@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { formatCurrency } from "@/lib/currency";
 import { GoalHistoryFilters } from "./goal-history-filters";
 import type { Goal } from "@/types";
+import { EmptyState, PageHeader, StatCard } from "@/components/ui";
 
 export default async function GoalHistoryPage() {
   const supabase = await createClient();
@@ -27,53 +27,18 @@ export default async function GoalHistoryPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <Link
-          href="/me"
-          className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/50"
-          aria-label="Back to profile"
-        >
-          <svg
-            className="h-5 w-5 text-gray-600"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15.75 19.5 8.25 12l7.5-7.5"
-            />
-          </svg>
-        </Link>
-        <h2 className="heading-large text-neutral-900">Goal History</h2>
-      </div>
+      <PageHeader title="Goal History" backHref="/me" backLabel="Back to profile" />
 
-      {/* Summary card */}
-      <div className="rounded-2xl bg-primary/10 p-4">
-        <div className="grid grid-cols-2 gap-3 text-center">
-          <div>
-            <p className="text-xl font-bold text-primary-dark">
-              {goals.length}
-            </p>
-            <p className="text-xs text-gray-600">Goals completed</p>
-          </div>
-          <div>
-            <p className="text-xl font-bold text-primary-dark">
-              {formatCurrency(totalEarned)}
-            </p>
-            <p className="text-xs text-gray-600">Total earned</p>
-          </div>
-        </div>
+      <div className="grid grid-cols-2 gap-3 text-center">
+        <StatCard variant="tintPrimary" label="Goals completed" value={goals.length} />
+        <StatCard variant="tintPrimary" label="Total earned" value={formatCurrency(totalEarned)} />
       </div>
 
       {goals.length === 0 ? (
-        <div className="rounded-2xl border-2 border-dashed border-gray-300 p-8 text-center">
-          <p className="text-sm text-gray-500">
-            No completed goals yet. Complete some goals to see your history!
-          </p>
-        </div>
+        <EmptyState
+          message="No completed goals yet. Complete some goals to see your history!"
+          className="p-8"
+        />
       ) : (
         <GoalHistoryFilters goals={goals} />
       )}

@@ -1,37 +1,45 @@
 import Link from "next/link";
 import { GoalCard } from "../goals/goal-card";
 import type { Goal } from "@/types";
+import { Button } from "@/components/ui";
 
 export function TodaysGoals({ goals }: { goals: Goal[] }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-gray-900">
-          Today&apos;s goals
-        </h3>
-        <Link href="/goals" className="text-xs font-medium text-primary-dark">
-          View all
-        </Link>
+        <h3 className="heading-section text-neutral-900">Today&apos;s goals</h3>
+        <Button asChild variant="secondary" size="sm">
+          <Link href="/goals">View all</Link>
+        </Button>
       </div>
 
       {goals.length > 0 ? (
-        <div className="space-y-2">
-          {goals.map((goal) => (
-            <GoalCard key={goal.id} goal={goal} compact />
+        <div className="space-y-3">
+          {[...goals]
+            .sort((a, b) => {
+              const aDone = a.completed_at !== null;
+              const bDone = b.completed_at !== null;
+              if (aDone === bDone) return 0;
+              return aDone ? 1 : -1;
+            })
+            .map((goal) => (
+            <GoalCard
+              key={goal.id}
+              goal={goal}
+              linkToDetails
+              actions="full"
+            />
           ))}
         </div>
       ) : (
-        <p className="text-sm text-gray-500">
+        <p className="text-body text-neutral-700/70">
           No goals scheduled for today. Add some from the Goals tab!
         </p>
       )}
 
-      <Link
-        href="/goals/new"
-        className="flex w-full items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 py-3 text-sm font-medium text-gray-400 hover:border-primary hover:text-primary-dark"
-      >
-        + Add Goal
-      </Link>
+      <Button asChild variant="ghostAccent" className="w-full">
+        <Link href="/goals/new">+ Add Goal</Link>
+      </Button>
     </div>
   );
 }
