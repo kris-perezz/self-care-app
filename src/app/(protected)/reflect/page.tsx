@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getToday } from "@/lib/streak";
+import { getRandomPrompts } from "@/lib/writing-prompts";
 import { MoodCheckin } from "./mood-checkin";
 import { WritingPrompts } from "./writing-prompts";
 import { ProgressCard } from "./progress-card";
@@ -59,7 +60,7 @@ export default async function ReflectPage() {
         </Link>
       </div>
 
-      <WritingPrompts />
+      <WritingPrompts initialPrompts={getRandomPrompts(4)} />
 
       <ProgressCard totalWords={totalWords} totalEarned={totalEarned} />
     </div>
