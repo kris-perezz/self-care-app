@@ -5,7 +5,8 @@ import "./globals.css";
 const fraunces = Fraunces({
   variable: "--font-fraunces",
   subsets: ["latin"],
-  weight: ["600"],
+  weight: ["600", "900"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -17,13 +18,20 @@ const epilogue = Epilogue({
 });
 
 export const metadata: Metadata = {
-  title: "Self Care App",
+  title: "himo",
   description: "Track your self-care goals, reflect, and earn rewards",
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/himo-favicon-light.svg", media: "(prefers-color-scheme: light)" },
+      { url: "/himo-favicon-dark.svg", media: "(prefers-color-scheme: dark)" },
+    ],
+    apple: "/himo-icon-light.svg",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Self Care App",
+    title: "himo",
   },
 };
 
