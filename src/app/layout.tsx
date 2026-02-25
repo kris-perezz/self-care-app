@@ -24,10 +24,16 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
-      { url: "/himo-favicon-light.svg", media: "(prefers-color-scheme: light)" },
-      { url: "/himo-favicon-dark.svg", media: "(prefers-color-scheme: dark)" },
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/himo-icon-baked.svg", type: "image/svg+xml" },
     ],
-    apple: "/himo-icon-light.svg",
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+    other: [
+      { rel: "icon", url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { rel: "icon", url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
   },
   appleWebApp: {
     capable: true,
