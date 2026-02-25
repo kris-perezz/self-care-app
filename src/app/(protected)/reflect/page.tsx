@@ -7,7 +7,7 @@ import { perf } from "@/lib/perf";
 import { MoodCheckin } from "./mood-checkin";
 import { WritingPrompts } from "./writing-prompts";
 import { ProgressCard } from "./progress-card";
-import { Card, FluentEmoji, PageHeader } from "@/components/ui";
+import { Card, FluentEmoji } from "@/components/ui";
 import { EMOJI } from "@/lib/emoji";
 
 export default async function ReflectPage() {
@@ -43,13 +43,12 @@ export default async function ReflectPage() {
   const initialPrompts = getRandomPrompts(4);
 
   return (
-    <div className="space-y-4">
-      <PageHeader title="Reflect" />
-
+    <div className="space-y-6">
+      <h1 className="heading-large text-neutral-900">Reflect</h1>
       <MoodCheckin hasMoodToday={hasMoodToday} />
 
       <div className="grid grid-cols-2 gap-3">
-        <Link href="/reflect/write?type=prompted">
+        <Link href="/reflect/prompts">
           <Card variant="standard" interactive className="flex flex-col items-center gap-2">
             <FluentEmoji emoji={EMOJI.books} size={24} />
             <span className="text-small text-neutral-900">Prompted</span>

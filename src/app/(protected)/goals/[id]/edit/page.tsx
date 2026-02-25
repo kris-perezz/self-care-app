@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { EditGoalForm } from "./edit-goal-form";
+import { BackLink } from "@/components/nav/back-link";
 import type { Goal } from "@/types";
 
 export default async function EditGoalPage({
@@ -37,5 +38,13 @@ export default async function EditGoalPage({
     redirect("/goals");
   }
 
-  return <EditGoalForm goal={goal} />;
+  return (
+    <div className="space-y-6">
+      <div>
+        <BackLink href="/goals" />
+        <h1 className="heading-large text-neutral-900">Edit Goal</h1>
+      </div>
+      <EditGoalForm goal={goal} />
+    </div>
+  );
 }

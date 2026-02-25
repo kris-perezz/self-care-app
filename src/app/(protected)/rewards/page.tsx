@@ -34,9 +34,8 @@ export default async function RewardsPage() {
   const purchasedRewards = rewards.filter((r) => r.purchased_at !== null);
 
   return (
-    <div className="space-y-4">
-      <h2 className="heading-large text-neutral-900">Rewards</h2>
-
+    <div className="space-y-6">
+      <h1 className="heading-large text-neutral-900">Rewards</h1>
       <BalanceCard balance={balance} />
 
       <div className="space-y-3">

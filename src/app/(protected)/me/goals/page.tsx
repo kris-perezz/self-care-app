@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import { formatCurrency } from "@/lib/currency";
 import { GoalHistoryFilters } from "./goal-history-filters";
 import type { Goal } from "@/types";
-import { EmptyState, PageHeader, StatCard } from "@/components/ui";
+import { EmptyState, StatCard } from "@/components/ui";
+import { BackLink } from "@/components/nav/back-link";
 
 export default async function GoalHistoryPage() {
   const user = await getUser();
@@ -24,8 +25,11 @@ export default async function GoalHistoryPage() {
   const totalEarned = goals.reduce((sum, g) => sum + g.currency_reward, 0);
 
   return (
-    <div className="space-y-4">
-      <PageHeader title="Goal History" backHref="/me" backLabel="Back to profile" />
+    <div className="space-y-6">
+      <div>
+        <BackLink href="/me" />
+        <h1 className="heading-large text-neutral-900">Goal History</h1>
+      </div>
 
       <div className="grid grid-cols-2 gap-3 text-center">
         <StatCard variant="tintPrimary" label="Goals completed" value={goals.length} />

@@ -1,4 +1,3 @@
-import { Header } from "@/components/nav/header";
 import { BottomNav } from "@/components/nav/bottom-nav";
 import { TimezoneSync } from "@/components/timezone-sync";
 
@@ -12,8 +11,7 @@ export default function ProtectedLayout({
   return (
     <div className="app-shell mx-auto max-w-[900px]">
       <TimezoneSync />
-      <Header />
-      <main className="mx-auto max-w-[900px] px-6 pb-20 pt-20">{children}</main>
+      <main className="mx-auto max-w-[900px] px-4 pb-24 pt-6">{children}</main>
       <BottomNav />
       {modal}
     </div>

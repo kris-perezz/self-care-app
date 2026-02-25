@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import Link from "next/link";
-import { Check, Clock, PencilSimple, Trash } from "@phosphor-icons/react/dist/ssr";
+import { ArrowsClockwise, Check, Clock, PencilSimple, Trash } from "@phosphor-icons/react/dist/ssr";
 import { completeGoal, deleteGoal } from "./actions";
 import { formatCurrency } from "@/lib/currency";
 import type { Goal } from "@/types";
@@ -11,18 +11,35 @@ import { EMOJI } from "@/lib/emoji";
 
 type GoalCardActions = "full" | "complete" | "none";
 
+const DAY_LABELS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+
+function formatRecurringDays(days: number[]): string {
+  const sorted = [...days].sort((a, b) => a - b);
+  return sorted.map((d) => DAY_LABELS[d]).join(" · ");
+}
+
 export function GoalCard({
   goal,
   linkToDetails = false,
+  detailsFrom,
   actions = "full",
+  today = "",
 }: {
   goal: Goal;
   linkToDetails?: boolean;
+  detailsFrom?: "home" | "goals" | "me";
   actions?: GoalCardActions;
+  today?: string;
 }) {
   const [isPending, startTransition] = useTransition();
   const [isDeleting, startDeleteTransition] = useTransition();
-  const detailsHref = `/goals/${goal.id}/view`;
+  const detailsHref = detailsFrom
+    ? `/goals/${goal.id}/view?from=${detailsFrom}`
+    : `/goals/${goal.id}/view`;
+
+  const isCompleted = goal.recurring_days
+    ? goal.last_completed_date === today
+    : goal.completed_at !== null;
 
   function handleComplete() {
     startTransition(async () => {
@@ -36,7 +53,7 @@ export function GoalCard({
     });
   }
 
-  if (goal.completed_at !== null) {
+  if (isCompleted) {
     return (
       <Card variant="muted" className="flex items-start gap-3 opacity-60">
         <div className="shrink-0 grayscale">
@@ -85,9 +102,16 @@ export function GoalCard({
 
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
           {goal.scheduled_time ? (
-            <span className="inline-flex h-5 items-center gap-1 rounded-lg bg-neutral-100 px-2 text-[11px] font-medium leading-none text-neutral-700/70">
+            <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-tiny text-neutral-700/70">
               <Clock size={12} weight="regular" />
               {formatTime(goal.scheduled_time)}
+            </span>
+          ) : null}
+
+          {goal.recurring_days && goal.recurring_days.length > 0 ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-tiny text-neutral-700/70">
+              <ArrowsClockwise size={12} weight="regular" />
+              {formatRecurringDays(goal.recurring_days)}
             </span>
           ) : null}
 
@@ -105,9 +129,16 @@ export function GoalCard({
 
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
           {goal.scheduled_time ? (
-            <span className="inline-flex h-5 items-center gap-1 rounded-lg bg-neutral-100 px-2 text-[11px] font-medium leading-none text-neutral-700/70">
+            <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-tiny text-neutral-700/70">
               <Clock size={12} weight="regular" />
               {formatTime(goal.scheduled_time)}
+            </span>
+          ) : null}
+
+          {goal.recurring_days && goal.recurring_days.length > 0 ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-tiny text-neutral-700/70">
+              <ArrowsClockwise size={12} weight="regular" />
+              {formatRecurringDays(goal.recurring_days)}
             </span>
           ) : null}
 
