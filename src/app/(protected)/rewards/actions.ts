@@ -188,7 +188,6 @@ export async function purchaseReward(rewardId: string): Promise<RewardActionStat
 
   revalidatePath("/rewards");
   revalidatePath("/home");
-  revalidatePath("/", "layout");
   return { error: null };
 }
 

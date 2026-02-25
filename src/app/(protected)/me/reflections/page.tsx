@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getUser } from "@/lib/queries";
 import { redirect } from "next/navigation";
 import { formatCurrency } from "@/lib/currency";
 import { ReflectionFilters } from "./reflection-filters";
@@ -6,20 +7,17 @@ import type { Reflection } from "@/types";
 import { EmptyState, PageHeader, StatCard } from "@/components/ui";
 
 export default async function ReflectionArchivePage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUser();
+  if (!user) redirect("/login");
 
-  if (!user) {
-    redirect("/login");
-  }
+  const supabase = await createClient();
 
   const { data } = await supabase
     .from("reflections")
-    .select("*")
+    .select("id, type, mood, word_count, currency_earned, prompt, content, created_at")
     .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(100);
 
   const reflections = (data as Reflection[]) ?? [];
 

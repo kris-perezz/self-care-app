@@ -48,8 +48,8 @@ export function RewardCard({
           {!reward.is_active ? (
             <IconButton
               onClick={() =>
-                startSetActive(() => {
-                  void setActiveReward(reward.id);
+                startSetActive(async () => {
+                  await setActiveReward(reward.id);
                 })
               }
               disabled={isSettingActive}
@@ -64,8 +64,8 @@ export function RewardCard({
 
           <IconButton
             onClick={() =>
-              startDelete(() => {
-                void deleteReward(reward.id);
+              startDelete(async () => {
+                await deleteReward(reward.id);
               })
             }
             disabled={isDeleting}
@@ -84,8 +84,8 @@ export function RewardCard({
       {canPurchase ? (
         <Button
           onClick={() =>
-            startPurchase(() => {
-              void purchaseReward(reward.id);
+            startPurchase(async () => {
+              await purchaseReward(reward.id);
             })
           }
           disabled={isPurchasing}

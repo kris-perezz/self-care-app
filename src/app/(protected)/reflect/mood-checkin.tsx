@@ -9,8 +9,8 @@ export function MoodCheckin({ hasMoodToday }: { hasMoodToday: boolean }) {
   const [isPending, startTransition] = useTransition();
 
   function handleMood(mood: string) {
-    startTransition(() => {
-      void saveMoodCheckin(mood);
+    startTransition(async () => {
+      await saveMoodCheckin(mood);
     });
   }
 

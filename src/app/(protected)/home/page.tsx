@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
+import { getBalance, getUser } from "@/lib/queries";
 import { getToday } from "@/lib/streak";
+import { perf } from "@/lib/perf";
 import { StatCards } from "./stat-cards";
 import { RewardProgress } from "./reward-progress";
 import { ReflectCta } from "./reflect-cta";
@@ -7,54 +9,45 @@ import { TodaysGoals } from "./todays-goals";
 import type { Goal, Reward, UserProfile } from "@/types";
 
 export default async function HomePage() {
+  const done = perf("[server] /home total");
+  const user = await getUser();
+  if (!user) return null;
+
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const doneData = perf("[server] /home queries");
 
-  if (!user) {
-    return null;
-  }
+  const [balance, { data: profile }, { data: goals }, { data: activeReward }] =
+    await Promise.all([
+      getBalance(),
+      supabase
+        .from("profiles")
+        .select("current_streak, timezone")
+        .eq("id", user.id)
+        .single(),
+      supabase
+        .from("goals")
+        .select("id, title, emoji, scheduled_date, completed_at, difficulty, currency_reward")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: true }),
+      supabase
+        .from("rewards")
+        .select("id, name, emoji, price, purchased_at, is_active, created_at")
+        .eq("user_id", user.id)
+        .eq("is_active", true)
+        .is("purchased_at", null)
+        .limit(1)
+        .maybeSingle(),
+    ]);
 
-  const [
-    { data: profile },
-    { data: transactions },
-    { data: allTodayGoals },
-    { data: activeReward },
-  ] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("current_streak, timezone")
-      .eq("id", user.id)
-      .single(),
-    supabase
-      .from("currency_transactions")
-      .select("amount")
-      .eq("user_id", user.id),
-    supabase
-      .from("goals")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: true }),
-    supabase
-      .from("rewards")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("is_active", true)
-      .is("purchased_at", null)
-      .limit(1)
-      .maybeSingle(),
-  ]);
+  doneData();
+  done();
 
-  const balance = transactions?.reduce((sum, t) => sum + t.amount, 0) ?? 0;
-  const timezone = (profile as Pick<UserProfile, "current_streak" | "timezone">)?.timezone ?? "UTC";
-  const streak = (profile as Pick<UserProfile, "current_streak" | "timezone">)?.current_streak ?? 0;
+  const timezone = (profile as Pick<UserProfile, "current_streak" | "timezone"> | null)?.timezone ?? "UTC";
+  const streak = (profile as Pick<UserProfile, "current_streak" | "timezone"> | null)?.current_streak ?? 0;
   const today = getToday(timezone);
 
-  // Filter today's goals
-  const todaysGoals = ((allTodayGoals as Goal[]) ?? []).filter(
-    (g) => g.scheduled_date === today
-  );
+  const allGoals = (goals as Goal[]) ?? [];
+  const todaysGoals = allGoals.filter((g) => g.scheduled_date === today);
   const completedToday = todaysGoals.filter((g) => g.completed_at !== null).length;
 
   return (

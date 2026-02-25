@@ -45,7 +45,6 @@ export async function saveMoodCheckin(mood: string): Promise<ReflectActionState>
   });
 
   revalidatePath("/reflect");
-  revalidatePath("/", "layout");
   return { error: null };
 }
 
@@ -100,6 +99,5 @@ export async function saveReflection(
   }
 
   revalidatePath("/reflect");
-  revalidatePath("/", "layout");
   redirect("/reflect");
 }

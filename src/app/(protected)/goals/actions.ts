@@ -60,7 +60,6 @@ export async function createGoal(
 
   revalidatePath("/goals");
   revalidatePath("/home");
-  revalidatePath("/", "layout");
   return { error: null, success: true };
 }
 
@@ -104,22 +103,24 @@ export async function completeGoal(goalId: string): Promise<ActionState> {
     return { error: "Goal already completed" };
   }
 
-  const { error: txError } = await supabase.from("currency_transactions").insert({
-    user_id: user.id,
-    amount: goal.currency_reward,
-    source: "goal",
-    reference_id: goalId,
-  });
+  // Run currency insert and profile fetch in parallel
+  const [{ error: txError }, { data: profile }] = await Promise.all([
+    supabase.from("currency_transactions").insert({
+      user_id: user.id,
+      amount: goal.currency_reward,
+      source: "goal",
+      reference_id: goalId,
+    }),
+    supabase
+      .from("profiles")
+      .select("current_streak, longest_streak, last_active_date, timezone")
+      .eq("id", user.id)
+      .single(),
+  ]);
 
   if (txError) {
     return { error: txError.message };
   }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("current_streak, longest_streak, last_active_date, timezone")
-    .eq("id", user.id)
-    .single();
 
   if (profile) {
     const { newStreak, todayStr } = computeStreak(
@@ -140,7 +141,6 @@ export async function completeGoal(goalId: string): Promise<ActionState> {
 
   revalidatePath("/goals");
   revalidatePath("/home");
-  revalidatePath("/", "layout");
   return { error: null };
 }
 

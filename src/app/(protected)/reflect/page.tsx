@@ -1,40 +1,46 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getUser } from "@/lib/queries";
 import { getToday } from "@/lib/streak";
 import { getRandomPrompts } from "@/lib/writing-prompts";
+import { perf } from "@/lib/perf";
 import { MoodCheckin } from "./mood-checkin";
 import { WritingPrompts } from "./writing-prompts";
 import { ProgressCard } from "./progress-card";
-import Link from "next/link";
 import { Card, FluentEmoji, PageHeader } from "@/components/ui";
 import { EMOJI } from "@/lib/emoji";
 
 export default async function ReflectPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  const done = perf("[server] /reflect total");
+  const user = await getUser();
   if (!user) return null;
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("timezone")
-    .eq("id", user.id)
-    .single();
+  const supabase = await createClient();
+  const t1 = perf("[server] /reflect parallel queries");
+
+  const [{ data: profile }, { data: allReflections }] = await Promise.all([
+    supabase.from("profiles").select("timezone").eq("id", user.id).single(),
+    supabase
+      .from("reflections")
+      .select("word_count, currency_earned, type, created_at")
+      .eq("user_id", user.id)
+      .gte("created_at", new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString()),
+  ]);
+
+  t1();
 
   const timezone = profile?.timezone ?? "UTC";
   const today = getToday(timezone);
-
   const startOfDay = `${today}T00:00:00`;
-  const { data: todaysReflections } = await supabase
-    .from("reflections")
-    .select("word_count, currency_earned, type")
-    .eq("user_id", user.id)
-    .gte("created_at", startOfDay);
+  const todaysReflections = (allReflections ?? []).filter((r) => r.created_at >= startOfDay);
 
-  const totalWords = todaysReflections?.reduce((sum, r) => sum + r.word_count, 0) ?? 0;
-  const totalEarned = todaysReflections?.reduce((sum, r) => sum + r.currency_earned, 0) ?? 0;
-  const hasMoodToday = todaysReflections?.some((r) => r.type === "mood") ?? false;
+  const hasMoodToday = todaysReflections.some((r) => r.type === "mood");
+  const totalWords = todaysReflections.reduce((sum, r) => sum + r.word_count, 0);
+  const totalEarned = todaysReflections.reduce((sum, r) => sum + r.currency_earned, 0);
+
+  done();
+
+  const initialPrompts = getRandomPrompts(4);
 
   return (
     <div className="space-y-4">
@@ -60,7 +66,7 @@ export default async function ReflectPage() {
         </Link>
       </div>
 
-      <WritingPrompts initialPrompts={getRandomPrompts(4)} />
+      <WritingPrompts initialPrompts={initialPrompts} />
 
       <ProgressCard totalWords={totalWords} totalEarned={totalEarned} />
     </div>
