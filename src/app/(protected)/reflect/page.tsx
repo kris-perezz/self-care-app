@@ -49,7 +49,7 @@ export default async function ReflectPage() {
       <MoodCheckin hasMoodToday={hasMoodToday} />
 
       <div className="grid grid-cols-2 gap-3">
-        <Link href="/reflect/write?type=prompted">
+        <Link href="/reflect/prompts">
           <Card variant="standard" interactive className="flex flex-col items-center gap-2">
             <FluentEmoji emoji={EMOJI.books} size={24} />
             <span className="text-small text-neutral-900">Prompted</span>
