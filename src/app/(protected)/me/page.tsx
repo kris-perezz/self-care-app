@@ -5,8 +5,9 @@ import { redirect } from "next/navigation";
 import { perf } from "@/lib/perf";
 import { SignOutButton } from "./sign-out-button";
 import type { UserProfile } from "@/types";
-import { Card, FluentEmoji, PageHeader, StatCard } from "@/components/ui";
+import { Card, FluentEmoji, StatCard } from "@/components/ui";
 import { EMOJI } from "@/lib/emoji";
+import { CaretRight } from "@phosphor-icons/react/dist/ssr";
 
 export default async function MePage() {
   const done = perf("[server] /me total");
@@ -35,9 +36,8 @@ export default async function MePage() {
   const profile = profileData as UserProfile | null;
 
   return (
-    <div className="space-y-4">
-      <PageHeader title="Me" />
-
+    <div className="space-y-6">
+      <h1 className="heading-large text-neutral-900">Me</h1>
       <Card variant="tintAccent" className="space-y-4">
         <div className="text-center">
           <p className="text-small text-neutral-900">{profile?.email ?? ""}</p>
@@ -97,7 +97,7 @@ function MenuItem({
         ) : null}
       </span>
 
-      <span className="text-neutral-700/70">&gt;</span>
+      <CaretRight size={16} weight="regular" className="text-neutral-700/70" />
     </>
   );
 

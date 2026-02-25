@@ -21,7 +21,7 @@ export default async function HomePage() {
       getBalance(),
       supabase
         .from("profiles")
-        .select("current_streak, timezone")
+        .select("current_streak, timezone, display_name")
         .eq("id", user.id)
         .single(),
       supabase
@@ -42,8 +42,18 @@ export default async function HomePage() {
   doneData();
   done();
 
-  const timezone = (profile as Pick<UserProfile, "current_streak" | "timezone"> | null)?.timezone ?? "UTC";
-  const streak = (profile as Pick<UserProfile, "current_streak" | "timezone"> | null)?.current_streak ?? 0;
+  const timezone = (profile as Pick<UserProfile, "current_streak" | "timezone" | "display_name"> | null)?.timezone ?? "UTC";
+  const streak = (profile as Pick<UserProfile, "current_streak" | "timezone" | "display_name"> | null)?.current_streak ?? 0;
+  const displayName = (profile as Pick<UserProfile, "display_name"> | null)?.display_name ?? null;
+
+  const localHour = new Date(new Date().toLocaleString("en-US", { timeZone: timezone })).getHours();
+  const timeGreeting =
+    localHour >= 5 && localHour < 12
+      ? "Good morning"
+      : localHour >= 12 && localHour < 18
+        ? "Good afternoon"
+        : "Good evening";
+  const greeting = displayName ? `${timeGreeting}, ${displayName}` : `${timeGreeting} 👋`;
   const today = getToday(timezone);
   const todayDow = new Date(new Date().toLocaleString("en-US", { timeZone: timezone })).getDay();
 
@@ -58,8 +68,8 @@ export default async function HomePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="heading-large text-neutral-900">Today</h2>
-        <p className="text-tiny text-neutral-700/70">
+        <h1 className="heading-large text-neutral-900">{greeting}</h1>
+        <p className="text-small text-neutral-700">
           {new Date().toLocaleDateString("en-US", {
             weekday: "long",
             month: "long",
@@ -79,9 +89,9 @@ export default async function HomePage() {
         <RewardProgress reward={activeReward as Reward} balance={balance} />
       )}
 
-      <ReflectCta />
-
       <TodaysGoals goals={todaysGoals as Goal[]} today={today} />
+
+      <ReflectCta />
     </div>
   );
 }

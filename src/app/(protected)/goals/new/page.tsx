@@ -9,10 +9,10 @@ import {
   Button,
   EmojiPicker,
   Field,
-  PageHeader,
   Textarea,
   Input,
 } from "@/components/ui";
+import { BackLink } from "@/components/nav/back-link";
 import { DatePicker } from "@/components/ui/date-picker";
 import { TimePicker } from "@/components/ui/time-picker";
 import { DayPicker } from "../day-picker";
@@ -38,8 +38,10 @@ export default function NewGoalPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="New Goal" backHref="/goals" backLabel="Back to goals" />
-
+      <div>
+        <BackLink href="/goals" />
+        <h1 className="heading-large text-neutral-900">New Goal</h1>
+      </div>
       <form action={formAction} className="space-y-4">
         {state.error ? (
           <div className="rounded-2xl bg-warning-50 p-3 text-small text-warning-900">

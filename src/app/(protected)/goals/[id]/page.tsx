@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Goal } from "@/types";
-import { PageHeader } from "@/components/ui";
 import { GoalDetailsContent } from "./goal-details";
+import { BackLink } from "@/components/nav/back-link";
 
 export default async function GoalDetailsPage({
   params,
@@ -42,7 +42,10 @@ export default async function GoalDetailsPage({
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Goal details" backHref={backHref} backLabel={backLabel} />
+      <div>
+        <BackLink href={backHref} />
+        <h1 className="heading-large text-neutral-900">{goal.title}</h1>
+      </div>
       <GoalDetailsContent goal={goal} />
     </div>
   );

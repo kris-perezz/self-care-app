@@ -9,7 +9,6 @@ import {
   Button,
   EmojiPicker,
   Field,
-  PageHeader,
   Textarea,
   Input,
 } from "@/components/ui";
@@ -40,8 +39,6 @@ export function EditGoalForm({ goal }: { goal: Goal }) {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Edit Goal" backHref="/goals" backLabel="Back to goals" />
-
       <form action={formAction} className="space-y-4">
         {state.error ? (
           <div className="rounded-2xl bg-warning-50 p-3 text-small text-warning-900">

@@ -1,8 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { SettingsForm } from "./settings-form";
+import { BackLink } from "@/components/nav/back-link";
 import type { UserProfile } from "@/types";
-import { PageHeader } from "@/components/ui";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -24,7 +24,10 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Settings" backHref="/me" backLabel="Back to profile" />
+      <div>
+        <BackLink href="/me" />
+        <h1 className="heading-large text-neutral-900">Settings</h1>
+      </div>
       <SettingsForm profile={profile} />
     </div>
   );

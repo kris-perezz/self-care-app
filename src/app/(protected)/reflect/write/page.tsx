@@ -1,5 +1,6 @@
-import { Card, PageHeader } from "@/components/ui";
+import { Card } from "@/components/ui";
 import { WritingForm } from "./writing-form";
+import { BackLink } from "@/components/nav/back-link";
 
 export default async function WritePage({
   searchParams,
@@ -7,14 +8,14 @@ export default async function WritePage({
   searchParams: Promise<{ type?: string; prompt?: string }>;
 }) {
   const { type = "freewrite", prompt } = await searchParams;
+  const title = type === "prompted" ? "Prompted" : "Free Write";
 
   return (
     <div className="space-y-4">
-      <PageHeader
-        title={type === "prompted" ? "Prompted" : "Free Write"}
-        backHref="/reflect"
-        backLabel="Back to reflect"
-      />
+      <div>
+        <BackLink href="/reflect" />
+        <h1 className="heading-large text-neutral-900">{title}</h1>
+      </div>
 
       {prompt ? (
         <Card variant="tintAccent">

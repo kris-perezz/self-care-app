@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import { formatCurrency } from "@/lib/currency";
 import { ReflectionFilters } from "./reflection-filters";
 import type { Reflection } from "@/types";
-import { EmptyState, PageHeader, StatCard } from "@/components/ui";
+import { EmptyState, StatCard } from "@/components/ui";
+import { BackLink } from "@/components/nav/back-link";
 
 export default async function ReflectionArchivePage() {
   const user = await getUser();
@@ -27,8 +28,11 @@ export default async function ReflectionArchivePage() {
   const writingCount = reflections.filter((r) => r.type !== "mood").length;
 
   return (
-    <div className="space-y-4">
-      <PageHeader title="Reflections" backHref="/me" backLabel="Back to profile" />
+    <div className="space-y-6">
+      <div>
+        <BackLink href="/me" />
+        <h1 className="heading-large text-neutral-900">Reflections</h1>
+      </div>
 
       <div className="grid grid-cols-2 gap-3">
         <StatCard variant="tintAccent" label="Entries written" value={writingCount} />

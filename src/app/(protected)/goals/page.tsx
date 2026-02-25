@@ -6,7 +6,7 @@ import { perf } from "@/lib/perf";
 import { GoalFilters } from "./goal-filters";
 import { CompletedSection } from "./completed-section";
 import type { Goal } from "@/types";
-import { Button, EmptyState, PageHeader } from "@/components/ui";
+import { Button, EmptyState } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -42,14 +42,12 @@ export default async function GoalsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Goals"
-        rightSlot={
-          <Button asChild variant="ghostAccent" size="sm">
-            <Link href="/goals/new">+ New Goal</Link>
-          </Button>
-        }
-      />
+      <div className="flex items-center justify-between">
+        <h1 className="heading-large text-neutral-900">Goals</h1>
+        <Button asChild variant="ghostAccent" size="sm">
+          <Link href="/goals/new">+ New Goal</Link>
+        </Button>
+      </div>
 
       {goals.length === 0 ? (
         <EmptyState
