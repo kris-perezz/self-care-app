@@ -17,8 +17,8 @@ export const getUser = cache(async () => {
 
 /**
  * Cached per-request balance fetch.
- * Header, home page, and rewards page all need the balance —
- * this ensures only one DB query fires per request.
+ * Reads profiles.balance — a cached column kept in sync by a DB trigger
+ * on every currency_transactions INSERT. O(1) regardless of transaction count.
  */
 export const getBalance = cache(async () => {
   const user = await getUser();
