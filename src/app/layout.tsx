@@ -24,8 +24,9 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
-      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/himo-icon-baked.svg", type: "image/svg+xml" },
+      { url: "/himo-favicon-light.svg?v=2", media: "(prefers-color-scheme: light)", type: "image/svg+xml" },
+      { url: "/himo-favicon-dark.svg?v=2", media: "(prefers-color-scheme: dark)", type: "image/svg+xml" },
+      { url: "/favicon-32.png?v=2", sizes: "32x32", type: "image/png" },
     ],
     apple: [
       { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
