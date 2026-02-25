@@ -3,7 +3,19 @@ import { GoalCard } from "../goals/goal-card";
 import type { Goal } from "@/types";
 import { Button } from "@/components/ui";
 
-export function TodaysGoals({ goals }: { goals: Goal[] }) {
+function isCompletedToday(goal: Goal, today: string): boolean {
+  return goal.recurring_days
+    ? goal.last_completed_date === today
+    : goal.completed_at !== null;
+}
+
+export function TodaysGoals({
+  goals,
+  today,
+}: {
+  goals: Goal[];
+  today: string;
+}) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -17,8 +29,8 @@ export function TodaysGoals({ goals }: { goals: Goal[] }) {
         <div className="space-y-3">
           {[...goals]
             .sort((a, b) => {
-              const aDone = a.completed_at !== null;
-              const bDone = b.completed_at !== null;
+              const aDone = isCompletedToday(a, today);
+              const bDone = isCompletedToday(b, today);
               if (aDone === bDone) return 0;
               return aDone ? 1 : -1;
             })
@@ -27,7 +39,9 @@ export function TodaysGoals({ goals }: { goals: Goal[] }) {
               key={goal.id}
               goal={goal}
               linkToDetails
+              detailsFrom="home"
               actions="full"
+              today={today}
             />
           ))}
         </div>

@@ -26,7 +26,7 @@ export default async function HomePage() {
         .single(),
       supabase
         .from("goals")
-        .select("id, title, emoji, scheduled_date, completed_at, difficulty, currency_reward")
+        .select("id, title, emoji, scheduled_date, completed_at, difficulty, currency_reward, recurring_days, last_completed_date")
         .eq("user_id", user.id)
         .order("created_at", { ascending: true }),
       supabase
@@ -45,10 +45,15 @@ export default async function HomePage() {
   const timezone = (profile as Pick<UserProfile, "current_streak" | "timezone"> | null)?.timezone ?? "UTC";
   const streak = (profile as Pick<UserProfile, "current_streak" | "timezone"> | null)?.current_streak ?? 0;
   const today = getToday(timezone);
+  const todayDow = new Date(new Date().toLocaleString("en-US", { timeZone: timezone })).getDay();
 
   const allGoals = (goals as Goal[]) ?? [];
-  const todaysGoals = allGoals.filter((g) => g.scheduled_date === today);
-  const completedToday = todaysGoals.filter((g) => g.completed_at !== null).length;
+  const todaysGoals = allGoals.filter(
+    (g) => g.scheduled_date === today || g.recurring_days?.includes(todayDow)
+  );
+  const completedToday = todaysGoals.filter((g) =>
+    g.recurring_days ? g.last_completed_date === today : g.completed_at !== null
+  ).length;
 
   return (
     <div className="space-y-6">
@@ -76,7 +81,7 @@ export default async function HomePage() {
 
       <ReflectCta />
 
-      <TodaysGoals goals={todaysGoals as Goal[]} />
+      <TodaysGoals goals={todaysGoals as Goal[]} today={today} />
     </div>
   );
 }

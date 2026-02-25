@@ -19,11 +19,8 @@ const tabs = [
 
 export function BottomNav() {
   return (
-    <nav
-      className="fixed bottom-0 left-0 right-0 z-50 border-t border-neutral-100 bg-neutral-50/95 backdrop-blur-sm"
-      style={{ height: "72px" }}
-    >
-      <div className="mx-auto flex h-full max-w-[900px] items-center justify-around px-6">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-neutral-100 bg-neutral-50">
+      <div className="mx-auto flex h-14 max-w-[900px] items-center justify-around px-4">
         {tabs.map((tab) => (
           <NavTabItem
             key={tab.name}

@@ -9,6 +9,8 @@ export interface Goal {
   scheduled_time: string | null;
   scheduled_date: string | null;
   completed_at: string | null;
+  recurring_days: number[] | null;
+  last_completed_date: string | null;
   created_at: string;
 }
 

@@ -13,7 +13,7 @@ export default function ProtectedLayout({
     <div className="app-shell mx-auto max-w-[900px]">
       <TimezoneSync />
       <Header />
-      <main className="mx-auto max-w-[900px] px-6 pb-20 pt-20">{children}</main>
+      <main className="mx-auto max-w-[900px] px-4 pb-16 pt-16">{children}</main>
       <BottomNav />
       {modal}
     </div>

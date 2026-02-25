@@ -15,6 +15,7 @@ import {
 } from "@/components/ui";
 import { DatePicker } from "@/components/ui/date-picker";
 import { TimePicker } from "@/components/ui/time-picker";
+import { DayPicker } from "../day-picker";
 import { EMOJI, GOAL_EMOJI_OPTIONS } from "@/lib/emoji";
 
 const initialState: ActionState = { error: null, success: false };
@@ -26,6 +27,7 @@ export default function NewGoalPage() {
   const [scheduledDate, setScheduledDate] = useState<string | null>(null);
   const [scheduledTime, setScheduledTime] = useState<string | null>(null);
   const [emoji, setEmoji] = useState<string>(EMOJI.target);
+  const [isRecurring, setIsRecurring] = useState(false);
 
   useEffect(() => {
     if (state.success) {
@@ -94,23 +96,29 @@ export default function NewGoalPage() {
           </div>
         </Field>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label="Date" hint="(optional)" className="min-w-0">
-            <DatePicker
-              name="scheduled_date"
-              value={scheduledDate}
-              onChange={setScheduledDate}
-            />
-          </Field>
+        <Field label="Recurring days" hint="(optional)">
+          <DayPicker onHasSelection={setIsRecurring} />
+        </Field>
 
-          <Field label="Time" hint="(optional)" className="min-w-0">
-            <TimePicker
-              name="scheduled_time"
-              value={scheduledTime}
-              onChange={setScheduledTime}
-            />
-          </Field>
-        </div>
+        {!isRecurring && (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <Field label="Date" hint="(optional)" className="min-w-0">
+              <DatePicker
+                name="scheduled_date"
+                value={scheduledDate}
+                onChange={setScheduledDate}
+              />
+            </Field>
+
+            <Field label="Time" hint="(optional)" className="min-w-0">
+              <TimePicker
+                name="scheduled_time"
+                value={scheduledTime}
+                onChange={setScheduledTime}
+              />
+            </Field>
+          </div>
+        )}
 
         <Button type="submit" disabled={isPending} className="w-full">
           {isPending ? "Creating..." : "Create Goal"}

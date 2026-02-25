@@ -15,6 +15,7 @@ import {
 } from "@/components/ui";
 import { DatePicker } from "@/components/ui/date-picker";
 import { TimePicker } from "@/components/ui/time-picker";
+import { DayPicker } from "../../day-picker";
 import { EMOJI, GOAL_EMOJI_OPTIONS } from "@/lib/emoji";
 
 const initialState: ActionState = { error: null };
@@ -29,6 +30,7 @@ export function EditGoalForm({ goal }: { goal: Goal }) {
   const [scheduledDate, setScheduledDate] = useState<string | null>(goal.scheduled_date);
   const [scheduledTime, setScheduledTime] = useState<string | null>(goal.scheduled_time);
   const [emoji, setEmoji] = useState<string>(goal.emoji || EMOJI.target);
+  const [isRecurring, setIsRecurring] = useState((goal.recurring_days?.length ?? 0) > 0);
 
   function handleDelete() {
     startDeleteTransition(() => {
@@ -90,23 +92,32 @@ export function EditGoalForm({ goal }: { goal: Goal }) {
           </div>
         </Field>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label="Date" hint="(optional)" className="min-w-0">
-            <DatePicker
-              name="scheduled_date"
-              value={scheduledDate}
-              onChange={setScheduledDate}
-            />
-          </Field>
+        <Field label="Recurring days" hint="(optional)">
+          <DayPicker
+            initialDays={goal.recurring_days}
+            onHasSelection={setIsRecurring}
+          />
+        </Field>
 
-          <Field label="Time" hint="(optional)" className="min-w-0">
-            <TimePicker
-              name="scheduled_time"
-              value={scheduledTime}
-              onChange={setScheduledTime}
-            />
-          </Field>
-        </div>
+        {!isRecurring && (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <Field label="Date" hint="(optional)" className="min-w-0">
+              <DatePicker
+                name="scheduled_date"
+                value={scheduledDate}
+                onChange={setScheduledDate}
+              />
+            </Field>
+
+            <Field label="Time" hint="(optional)" className="min-w-0">
+              <TimePicker
+                name="scheduled_time"
+                value={scheduledTime}
+                onChange={setScheduledTime}
+              />
+            </Field>
+          </div>
+        )}
 
         <Button type="submit" disabled={isPending} className="w-full">
           {isPending ? "Saving..." : "Save Changes"}

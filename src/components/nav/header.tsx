@@ -6,8 +6,8 @@ export async function Header() {
   const balance = await getBalance();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 border-b border-neutral-100 bg-neutral-50/95 backdrop-blur-sm">
-      <div className="mx-auto flex h-14 max-w-[900px] items-center justify-between px-6">
+    <header className="fixed top-0 left-0 right-0 z-40 border-b border-neutral-100 bg-neutral-50">
+      <div className="mx-auto flex h-14 max-w-[900px] items-center justify-between px-4">
         <h1 style={{ fontFamily: "var(--font-fraunces), Georgia, serif", fontWeight: 900, fontStyle: "italic", fontSize: "1.25rem", lineHeight: 1 }}>
           himo
         </h1>
