@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getUser } from "@/lib/queries";
 import { redirect } from "next/navigation";
 import { formatCurrency } from "@/lib/currency";
 import { GoalHistoryFilters } from "./goal-history-filters";
@@ -6,21 +7,18 @@ import type { Goal } from "@/types";
 import { EmptyState, PageHeader, StatCard } from "@/components/ui";
 
 export default async function GoalHistoryPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUser();
+  if (!user) redirect("/login");
 
-  if (!user) {
-    redirect("/login");
-  }
+  const supabase = await createClient();
 
   const { data } = await supabase
     .from("goals")
-    .select("*")
+    .select("id, title, emoji, completed_at, difficulty, currency_reward, scheduled_date")
     .eq("user_id", user.id)
     .not("completed_at", "is", null)
-    .order("completed_at", { ascending: false });
+    .order("completed_at", { ascending: false })
+    .limit(100);
 
   const goals = (data as Goal[]) ?? [];
   const totalEarned = goals.reduce((sum, g) => sum + g.currency_reward, 0);

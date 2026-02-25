@@ -25,14 +25,14 @@ export function GoalCard({
   const detailsHref = `/goals/${goal.id}/view`;
 
   function handleComplete() {
-    startTransition(() => {
-      void completeGoal(goal.id);
+    startTransition(async () => {
+      await completeGoal(goal.id);
     });
   }
 
   function handleDelete() {
-    startDeleteTransition(() => {
-      void deleteGoal(goal.id);
+    startDeleteTransition(async () => {
+      await deleteGoal(goal.id);
     });
   }
 

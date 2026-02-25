@@ -1,29 +1,36 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getUser } from "@/lib/queries";
 import { redirect } from "next/navigation";
+import { perf } from "@/lib/perf";
 import { SignOutButton } from "./sign-out-button";
 import type { UserProfile } from "@/types";
 import { Card, FluentEmoji, PageHeader, StatCard } from "@/components/ui";
 import { EMOJI } from "@/lib/emoji";
 
 export default async function MePage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const done = perf("[server] /me total");
+  const user = await getUser();
+  if (!user) redirect("/login");
 
-  if (!user) {
-    redirect("/login");
-  }
+  const supabase = await createClient();
+  const doneData = perf("[server] /me queries");
 
   const [{ data: profileData }, { count: goalsDone }] = await Promise.all([
-    supabase.from("profiles").select("*").eq("id", user.id).single(),
+    supabase
+      .from("profiles")
+      .select("current_streak, longest_streak, created_at, email, timezone")
+      .eq("id", user.id)
+      .single(),
     supabase
       .from("goals")
       .select("id", { count: "exact", head: true })
       .eq("user_id", user.id)
       .not("completed_at", "is", null),
   ]);
+
+  doneData();
+  done();
 
   const profile = profileData as UserProfile | null;
 
@@ -33,7 +40,7 @@ export default async function MePage() {
 
       <Card variant="tintAccent" className="space-y-4">
         <div className="text-center">
-          <p className="text-small text-neutral-900">{profile?.email ?? user.email}</p>
+          <p className="text-small text-neutral-900">{profile?.email ?? ""}</p>
           <p className="text-tiny text-neutral-700/70">
             Member since{" "}
             {profile?.created_at
@@ -85,7 +92,9 @@ function MenuItem({
 
       <span className="flex flex-1 flex-col">
         <span className="text-small text-neutral-900">{label}</span>
-        {sublabel ? <span className="text-tiny text-neutral-700/70">{sublabel}</span> : null}
+        {sublabel ? (
+          <span className="text-tiny text-neutral-700/70">{sublabel}</span>
+        ) : null}
       </span>
 
       <span className="text-neutral-700/70">&gt;</span>

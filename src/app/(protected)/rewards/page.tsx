@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
+import { getBalance, getUser } from "@/lib/queries";
 import { formatCurrency } from "@/lib/currency";
+import { perf } from "@/lib/perf";
 import { BalanceCard } from "./balance-card";
 import { RewardCard } from "./reward-card";
 import { NewRewardForm } from "./new-reward-form";
@@ -8,32 +10,28 @@ import type { Reward } from "@/types";
 import { Card, EmptyState, FluentEmoji } from "@/components/ui";
 
 export default async function RewardsPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  const done = perf("[server] /rewards total");
+  const user = await getUser();
   if (!user) return null;
 
-  const [{ data: transactions }, { data: rewards }] = await Promise.all([
-    supabase
-      .from("currency_transactions")
-      .select("amount")
-      .eq("user_id", user.id),
+  const supabase = await createClient();
+  const doneData = perf("[server] /rewards queries");
+
+  const [balance, { data }] = await Promise.all([
+    getBalance(),
     supabase
       .from("rewards")
-      .select("*")
+      .select("id, name, emoji, price, purchased_at, is_active, created_at")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
   ]);
 
-  const balance = transactions?.reduce((sum, t) => sum + t.amount, 0) ?? 0;
-  const activeRewards = ((rewards as Reward[]) ?? []).filter(
-    (r) => r.purchased_at === null
-  );
-  const purchasedRewards = ((rewards as Reward[]) ?? []).filter(
-    (r) => r.purchased_at !== null
-  );
+  doneData();
+  done();
+
+  const rewards = (data as Reward[]) ?? [];
+  const activeRewards = rewards.filter((r) => r.purchased_at === null);
+  const purchasedRewards = rewards.filter((r) => r.purchased_at !== null);
 
   return (
     <div className="space-y-4">
@@ -47,11 +45,7 @@ export default async function RewardsPage() {
         {activeRewards.length > 0 ? (
           <div className="space-y-2">
             {activeRewards.map((reward) => (
-              <RewardCard
-                key={reward.id}
-                reward={reward}
-                balance={balance}
-              />
+              <RewardCard key={reward.id} reward={reward} balance={balance} />
             ))}
           </div>
         ) : (

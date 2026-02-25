@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { createReward, type RewardActionState } from "./actions";
 import { Button, Card, EmojiPicker, Field, Input } from "@/components/ui";
 import { EMOJI, REWARD_EMOJI_OPTIONS } from "@/lib/emoji";
@@ -11,6 +11,15 @@ export function NewRewardForm() {
   const [state, formAction, isPending] = useActionState(createReward, initialState);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState<string>(EMOJI.gift);
+  const wasSubmittingRef = useRef(false);
+
+  useEffect(() => {
+    if (wasSubmittingRef.current && !isPending && !state.error) {
+      setIsOpen(false);
+      setSelectedEmoji(EMOJI.gift);
+    }
+    wasSubmittingRef.current = isPending;
+  }, [isPending, state.error]);
 
   if (!isOpen) {
     return (

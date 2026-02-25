@@ -1,20 +1,9 @@
-import { createClient } from "@/lib/supabase/server";
-import { formatCurrency } from "@/lib/currency";
 import { Coins } from "@phosphor-icons/react/dist/ssr";
+import { getBalance } from "@/lib/queries";
+import { formatCurrency } from "@/lib/currency";
 
 export async function Header() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  let balance = 0;
-  if (user) {
-    const { data: transactions } = await supabase
-      .from("currency_transactions")
-      .select("amount")
-      .eq("user_id", user.id);
-
-    balance = transactions?.reduce((sum, t) => sum + t.amount, 0) ?? 0;
-  }
+  const balance = await getBalance();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 border-b border-neutral-100 bg-neutral-50/95 backdrop-blur-sm">

@@ -17,8 +17,8 @@ export function PresetRewards() {
   const [isPending, startTransition] = useTransition();
 
   function handleAdd(preset: (typeof PRESETS)[number]) {
-    startTransition(() => {
-      void addPresetReward(preset.name, preset.emoji, preset.price);
+    startTransition(async () => {
+      await addPresetReward(preset.name, preset.emoji, preset.price);
     });
   }
 
