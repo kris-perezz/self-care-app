@@ -4,6 +4,42 @@ Issues identified during the Feb 2026 performance audit but deferred due to scop
 
 ---
 
+## Resolved
+
+### ✅ Header balance deduplication (Feb 2026)
+**Fix**: Used React's `cache()` in `src/lib/queries.ts` — `getBalance` and `getUser` are deduplicated per-request. Header and page both call the same cached function; only one DB query fires.
+
+### ✅ TanStack Query removal (Feb 2026)
+**Context**: TanStack Query was added speculatively but added 9 files and HydrationBoundary wrappers with no meaningful benefit — every navigation still hit the server.
+**Fix**: Removed `@tanstack/react-query` entirely. All pages restored to pure async server components. Mutations rely on `revalidatePath()` in server actions.
+
+### ✅ `getUser` redundant auth round-trip (Feb 2026)
+**Fix**: Switched from `supabase.auth.getUser()` (~70–130ms network call) to `supabase.auth.getSession()` (~2–5ms cookie read) in `src/lib/queries.ts`. Safe because middleware already calls `getUser()` once per request on protected routes, and RLS enforces data access at the DB level.
+**Measured savings**: ~70ms per page (local), ~0ms in production (already ~2ms).
+
+### ✅ `/reflect` sequential queries (Feb 2026)
+**Fix**: Profile and reflections were fetched sequentially (profile timezone needed first). Changed to `Promise.all()` with a 36-hour UTC lookback window, then filtered to today client-side after both resolve.
+**Measured savings**: ~65–95ms per `/reflect` load.
+
+### ✅ `getBalance` full table scan → cached column (Feb 2026)
+**Context**: `getBalance` fetched every row from `currency_transactions` and summed `amount` in JavaScript. Grew linearly with transaction count; was measuring 113–172ms in production.
+**Fix**: Added `profiles.balance` column (integer, cached) kept in sync by a Postgres trigger that fires after every `currency_transactions` INSERT: `balance = balance + NEW.amount`. `getBalance` now reads a single column from `profiles` by primary key.
+**Migration**: `supabase/migrations/20260225_balance_cache.sql`
+**Measured savings**: 113–172ms → 35–62ms in production (~100ms per page).
+
+**Production page totals before → after (Vercel, warm):**
+| Page | Before | After |
+|---|---|---|
+| `/home` | 128–187ms | ~70ms |
+| `/goals` | 123–182ms | 41–56ms |
+| `/reflect` | 120–182ms | 47–63ms |
+| `/rewards` | 133–171ms | ~48ms |
+| `/me` | 123–174ms | 67–83ms |
+
+---
+
+---
+
 ## 1. Header balance deduplication
 
 **Issue**: The `Header` component re-queries `currency_transactions` on every page render, duplicating the same query already performed in `rewards/page.tsx` and `home/page.tsx`.

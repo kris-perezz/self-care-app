@@ -26,9 +26,10 @@ export const getBalance = cache(async () => {
   const done = perf("[server] getBalance");
   const supabase = await createClient();
   const { data } = await supabase
-    .from("currency_transactions")
-    .select("amount")
-    .eq("user_id", user.id);
+    .from("profiles")
+    .select("balance")
+    .eq("id", user.id)
+    .single();
   done();
-  return data?.reduce((sum, t) => sum + t.amount, 0) ?? 0;
+  return data?.balance ?? 0;
 });
