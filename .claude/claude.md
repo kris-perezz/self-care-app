@@ -262,7 +262,7 @@ Balance = SUM(amount) FROM currency_transactions
 
 ## Development Notes
 
-- **Git commits use**: `feat:`, `fix:`, `docs:`, `refactor:` prefixes
+- **Git commits use**: `feat:`, `fix:`, `docs:`, `refactor:` prefixes — **one line only, no body, no Co-Authored-By**
 - **All code is strict TypeScript** - No `any` types
 - **Mobile-first approach** - Test on mobile viewport first
 - **Keep it simple** - Avoid over-engineering, premature optimization
