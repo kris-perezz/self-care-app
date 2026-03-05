@@ -35,7 +35,7 @@ const variantClasses: Record<ButtonVariant, string> = {
 
 const sizeClasses: Record<ButtonSize, string> = {
   md: "rounded-3xl px-7 py-3.5 text-emphasis",
-  sm: "ui-compact-pill h-8 rounded-3xl px-4 text-[12px] font-semibold",
+  sm: "ui-compact-pill h-10 rounded-3xl px-4 text-[12px] font-semibold",
   icon: "h-10 w-10 rounded-lg p-0 text-small",
 };
 

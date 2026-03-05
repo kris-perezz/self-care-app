@@ -19,11 +19,11 @@ export function StatCard({
 }: StatCardProps) {
   return (
     <Card variant={variant} className={cn("space-y-1", className)}>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
         {icon ? <span className="shrink-0">{icon}</span> : null}
-        <p className="text-tiny text-neutral-700/70">{label}</p>
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">{label}</p>
       </div>
-      <p className="text-xl font-semibold text-neutral-900">{value}</p>
+      <p className="font-heading text-3xl font-semibold text-neutral-900">{value}</p>
     </Card>
   );
 }

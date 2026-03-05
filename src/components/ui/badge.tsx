@@ -15,7 +15,7 @@ const difficultyClasses: Record<Exclude<BadgeVariant, "status">, string> = {
   medium:
     "ui-compact-pill h-[22px] rounded-[18px] bg-secondary-100 px-2.5 text-[12px] font-semibold text-secondary-900",
   hard:
-    "ui-compact-pill h-[22px] rounded-[18px] bg-accent-100 px-2.5 text-[12px] font-semibold text-accent-900",
+    "ui-compact-pill h-[22px] rounded-[18px] bg-accent-200 px-2.5 text-[12px] font-semibold text-accent-900",
 };
 
 const statusColorClasses: Record<BadgeStatusColor, string> = {

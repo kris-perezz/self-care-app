@@ -11,7 +11,9 @@ export default function ProtectedLayout({
   return (
     <div className="app-shell mx-auto max-w-[900px]">
       <TimezoneSync />
-      <main className="mx-auto max-w-[900px] px-4 pb-24 pt-6">{children}</main>
+      <main className="page-enter mx-auto max-w-[900px] px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-[calc(env(safe-area-inset-top)+1.5rem)]">
+        {children}
+      </main>
       <BottomNav />
       {modal}
     </div>

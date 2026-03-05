@@ -101,13 +101,13 @@
   --color-neutral-900: #1f1f1f;
 
   /* Shadows */
-  --shadow-card: 0 2px 8px rgba(31, 31, 31, 0.06);
-  --shadow-card-hover: 0 4px 12px rgba(31, 31, 31, 0.12);
-  --shadow-card-active: 0 1px 4px rgba(31, 31, 31, 0.08);
-  --shadow-button: 0 2px 8px rgba(31, 31, 31, 0.06);
-  --shadow-button-hover: 0 4px 12px rgba(31, 31, 31, 0.12);
-  --shadow-button-active: 0 1px 4px rgba(31, 31, 31, 0.08);
-  --shadow-modal: 0 8px 32px rgba(31, 31, 31, 0.16);
+  --shadow-card: 0 4px 16px rgba(31, 31, 31, 0.10);
+  --shadow-card-hover: 0 8px 24px rgba(31, 31, 31, 0.16);
+  --shadow-card-active: 0 2px 8px rgba(31, 31, 31, 0.10);
+  --shadow-button: 0 2px 8px rgba(31, 31, 31, 0.12);
+  --shadow-button-hover: 0 6px 16px rgba(31, 31, 31, 0.18);
+  --shadow-button-active: 0 1px 4px rgba(31, 31, 31, 0.10);
+  --shadow-modal: 0 8px 32px rgba(31, 31, 31, 0.20);
 
   /* Legacy compatibility */
   --color-primary: var(--color-primary-500);
@@ -124,7 +124,8 @@ html {
   font-size: 16px;
   line-height: 1.6;
   height: 100%;
-  min-height: 100%;
+  min-height: calc(100% + env(safe-area-inset-top));
+  padding: 0 env(safe-area-inset-right) 0 env(safe-area-inset-left);
   overflow: hidden;
   overscroll-behavior: none;
 }
@@ -255,6 +256,16 @@ body {
   transform: scale(0.95);
 }
 
+/* Page fade-in */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.page-enter {
+  animation: fade-in 0.25s ease-out both;
+}
+
 /* Skeleton shimmer */
 @keyframes shimmer {
   0% { background-position: 200% 0; }
@@ -270,6 +281,10 @@ body {
   );
   background-size: 200% 100%;
   animation: shimmer 1.6s ease-in-out infinite;
+}
+
+.main-content {
+  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 24px);
 }
 
 /* Button Styles */
@@ -339,7 +354,7 @@ body {
 
 /* Progress Bar with Inset Shadow */
 .progress-container {
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--color-neutral-100);
   height: 10px;
   border-radius: 9999px;
   overflow: hidden;

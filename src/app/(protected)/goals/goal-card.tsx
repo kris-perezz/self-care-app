@@ -43,33 +43,33 @@ export function GoalCard({
 
   if (isCompleted) {
     return (
-      <Card variant="muted" className="flex items-start gap-3 opacity-60">
+      <Card variant="muted" className="flex items-start gap-3 border border-neutral-200">
         <div className="shrink-0 grayscale">
           <FluentEmoji emoji={goal.emoji || EMOJI.target} size={24} label={goal.title} />
         </div>
 
         {linkToDetails ? (
           <Link href={detailsHref} className="min-w-0 flex-1">
-            <p className="text-body text-neutral-700 line-through">{goal.title}</p>
+            <p className="text-body text-neutral-500 line-through">{goal.title}</p>
             {goal.description ? (
-              <p className="mt-0.5 truncate text-tiny text-neutral-700/70 line-through">
+              <p className="mt-0.5 truncate text-tiny text-neutral-400 line-through">
                 {goal.description}
               </p>
             ) : null}
           </Link>
         ) : (
           <div className="min-w-0 flex-1">
-            <p className="text-body text-neutral-700 line-through">{goal.title}</p>
+            <p className="text-body text-neutral-500 line-through">{goal.title}</p>
             {goal.description ? (
-              <p className="mt-0.5 truncate text-tiny text-neutral-700/70 line-through">
+              <p className="mt-0.5 truncate text-tiny text-neutral-400 line-through">
                 {goal.description}
               </p>
             ) : null}
           </div>
         )}
 
-        <div className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-primary-500 text-white">
-          <Check size={14} weight="bold" />
+        <div className="ml-auto flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-100 text-primary-700">
+          <Check size={16} weight="bold" />
         </div>
       </Card>
     );
@@ -85,19 +85,19 @@ export function GoalCard({
         <Link href={detailsHref} className="min-w-0 flex-1">
           <p className="text-body font-medium text-neutral-900">{goal.title}</p>
           {goal.description ? (
-            <p className="mt-0.5 truncate text-tiny text-neutral-700/70">{goal.description}</p>
+            <p className="mt-0.5 truncate text-tiny text-neutral-500">{goal.description}</p>
           ) : null}
 
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
             {goal.scheduled_time ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-tiny text-neutral-700/70">
+              <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-tiny text-neutral-500">
                 <Clock size={12} weight="regular" />
                 {formatTime(goal.scheduled_time)}
               </span>
             ) : null}
 
             {goal.recurring_days && goal.recurring_days.length > 0 ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-tiny text-neutral-700/70">
+              <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-tiny text-neutral-500">
                 <ArrowsClockwise size={12} weight="regular" />
                 {formatRecurringDays(goal.recurring_days)}
               </span>
@@ -112,19 +112,19 @@ export function GoalCard({
         <div className="min-w-0 flex-1">
           <p className="text-body font-medium text-neutral-900">{goal.title}</p>
           {goal.description ? (
-            <p className="mt-0.5 truncate text-tiny text-neutral-700/70">{goal.description}</p>
+            <p className="mt-0.5 truncate text-tiny text-neutral-500">{goal.description}</p>
           ) : null}
 
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
             {goal.scheduled_time ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-tiny text-neutral-700/70">
+              <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-tiny text-neutral-500">
                 <Clock size={12} weight="regular" />
                 {formatTime(goal.scheduled_time)}
               </span>
             ) : null}
 
             {goal.recurring_days && goal.recurring_days.length > 0 ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-tiny text-neutral-700/70">
+              <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-tiny text-neutral-500">
                 <ArrowsClockwise size={12} weight="regular" />
                 {formatRecurringDays(goal.recurring_days)}
               </span>
@@ -142,13 +142,13 @@ export function GoalCard({
           onClick={handleComplete}
           disabled={isPending}
           variant="primary"
-          className="ml-auto h-6 w-6 shrink-0 border-2 border-neutral-100 hover:border-primary-500"
+          className="ml-auto shrink-0 border-2 border-neutral-100 hover:border-primary-500"
           aria-label={`Complete "${goal.title}"`}
         >
           {isPending ? (
-            <span className="h-3 w-3 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+            <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
           ) : (
-            <Check size={14} weight="bold" />
+            <Check size={16} weight="bold" />
           )}
         </IconButton>
       ) : null}

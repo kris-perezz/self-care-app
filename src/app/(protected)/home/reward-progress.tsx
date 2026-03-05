@@ -20,15 +20,17 @@ export function RewardProgress({
             {reward.name}
           </span>
         </div>
-        <span className="text-tiny text-neutral-700/70">
+        <span className="text-tiny text-neutral-500">
           {formatCurrency(balance)} / {formatCurrency(reward.price)}
         </span>
       </div>
       <ProgressBar value={balance} max={reward.price} className="mt-3 h-2" />
-      <p className="mt-1.5 text-tiny text-neutral-700/70">
-        {remaining > 0
-          ? `${formatCurrency(remaining)} to go`
-          : "Ready to redeem!"}
+      <p className="mt-1.5 text-tiny">
+        {remaining > 0 ? (
+          <span className="text-neutral-500">{formatCurrency(remaining)} to go</span>
+        ) : (
+          <span className="font-medium text-primary-700">Ready to redeem!</span>
+        )}
       </p>
     </Card>
   );

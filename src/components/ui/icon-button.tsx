@@ -17,8 +17,8 @@ const variantClasses: Record<IconButtonVariant, string> = {
 };
 
 const sizeClasses: Record<IconButtonSize, string> = {
-  sm: "h-8 w-8",
-  md: "h-10 w-10",
+  sm: "h-10 w-10",
+  md: "h-11 w-11",
 };
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
