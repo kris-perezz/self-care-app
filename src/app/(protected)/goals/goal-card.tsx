@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { ArrowsClockwise, Check, Clock } from "@phosphor-icons/react/dist/ssr";
 import { completeGoal } from "./actions";
@@ -27,6 +27,16 @@ export function GoalCard({
   today?: string;
 }) {
   const [isPending, startTransition] = useTransition();
+  const [justCompleted, setJustCompleted] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const confettiRef = useRef<((opts: object) => void) | null>(null);
+
+  useEffect(() => {
+    import("canvas-confetti").then((m) => {
+      confettiRef.current = m.default as (opts: object) => void;
+    });
+  }, []);
+
   const detailsHref = detailsFrom
     ? `/goals/${goal.id}/view?from=${detailsFrom}`
     : `/goals/${goal.id}/view`;
@@ -36,6 +46,22 @@ export function GoalCard({
     : goal.completed_at !== null;
 
   function handleComplete() {
+    // Fire animations synchronously before the server action to avoid re-render race
+    setJustCompleted(true);
+    const rect = cardRef.current?.getBoundingClientRect();
+    const originX = rect ? (rect.left + rect.width / 2) / window.innerWidth : 0.5;
+    const originY = rect ? (rect.top + rect.height / 2) / window.innerHeight : 0.6;
+    const configs = {
+      easy:   { particleCount: 40,  spread: 50 },
+      medium: { particleCount: 80,  spread: 70 },
+      hard:   { particleCount: 150, spread: 100 },
+    };
+    confettiRef.current?.({
+      ...configs[goal.difficulty],
+      origin: { x: originX, y: originY },
+      colors: ["#74A12E", "#F4A6B6", "#d4996f", "#fff"],
+    });
+
     startTransition(async () => {
       await completeGoal(goal.id);
     });
@@ -76,7 +102,7 @@ export function GoalCard({
   }
 
   return (
-    <Card variant="standard" interactive className="flex items-start gap-3">
+    <Card ref={cardRef} variant="standard" interactive className="flex items-start gap-3">
       <div className="shrink-0" role="img" aria-label={goal.title}>
         <FluentEmoji emoji={goal.emoji || EMOJI.target} size={24} label={goal.title} />
       </div>
@@ -138,19 +164,22 @@ export function GoalCard({
       )}
 
       {actions !== "none" ? (
-        <IconButton
-          onClick={handleComplete}
-          disabled={isPending}
-          variant="primary"
-          className="ml-auto shrink-0 border-2 border-neutral-100 hover:border-primary-500"
-          aria-label={`Complete "${goal.title}"`}
-        >
-          {isPending ? (
-            <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
-          ) : (
-            <Check size={16} weight="bold" />
-          )}
-        </IconButton>
+        <span className="relative ml-auto shrink-0">
+          {justCompleted && <span className="animate-bloom-ring" />}
+          <IconButton
+            onClick={handleComplete}
+            disabled={isPending}
+            variant="primary"
+            className={justCompleted ? "animate-checkmark-bloom border-2 border-neutral-100 hover:border-primary-500" : "border-2 border-neutral-100 hover:border-primary-500"}
+            aria-label={`Complete "${goal.title}"`}
+          >
+            {isPending ? (
+              <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+            ) : (
+              <Check size={16} weight="bold" />
+            )}
+          </IconButton>
+        </span>
       ) : null}
     </Card>
   );

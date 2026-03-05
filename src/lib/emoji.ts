@@ -17,6 +17,10 @@ export const EMOJI = {
   gear: "\u2699",
   chart: "\u{1F4C8}",
   neutral: "\u{1F636}",
+  fire: "\u{1F525}",
+  seedling: "\u{1F331}",
+  herb: "\u{1F33F}",
+  lightning: "\u26A1",
 } as const;
 
 export const GOAL_EMOJI_OPTIONS = [

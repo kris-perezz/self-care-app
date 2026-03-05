@@ -20,6 +20,10 @@ const EMOJI_ASSET_MAP: Record<string, string> = {
   [EMOJI.cat]: "cat.svg",
   [EMOJI.gear]: "gear.svg",
   [EMOJI.chart]: "chart.svg",
+  [EMOJI.fire]: "fire.svg",
+  [EMOJI.seedling]: "seedling.svg",
+  [EMOJI.herb]: "herb.svg",
+  [EMOJI.lightning]: "lightning.svg",
 };
 
 export interface FluentEmojiProps {

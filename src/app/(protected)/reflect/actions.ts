@@ -2,11 +2,12 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { calculateReflectionEarnings, MOOD_CHECKIN_REWARD } from "@/lib/writing-prompts";
 
 export type ReflectActionState = {
   error: string | null;
+  success?: boolean;
+  earned?: number;
 };
 
 export async function saveMoodCheckin(mood: string): Promise<ReflectActionState> {
@@ -99,5 +100,5 @@ export async function saveReflection(
   }
 
   revalidatePath("/reflect");
-  redirect("/reflect");
+  return { error: null, success: true, earned: currencyEarned };
 }

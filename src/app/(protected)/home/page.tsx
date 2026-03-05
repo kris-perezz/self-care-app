@@ -6,6 +6,7 @@ import { StatCards } from "./stat-cards";
 import { RewardProgress } from "./reward-progress";
 import { ReflectCta } from "./reflect-cta";
 import { TodaysGoals } from "./todays-goals";
+import { PerfectDayBanner } from "./perfect-day-banner";
 import type { Goal, Reward, UserProfile } from "@/types";
 
 export default async function HomePage() {
@@ -65,6 +66,8 @@ export default async function HomePage() {
     g.recurring_days ? g.last_completed_date === today : g.completed_at !== null
   ).length;
 
+  const perfectDay = todaysGoals.length > 0 && completedToday === todaysGoals.length;
+
   return (
     <div className="space-y-6">
       <div>
@@ -83,7 +86,10 @@ export default async function HomePage() {
         streak={streak}
         completedToday={completedToday}
         totalToday={todaysGoals.length}
+        perfectDay={perfectDay}
       />
+
+      <PerfectDayBanner perfectDay={perfectDay} />
 
       {activeReward && (
         <RewardProgress reward={activeReward as Reward} balance={balance} />
@@ -91,7 +97,7 @@ export default async function HomePage() {
 
       <TodaysGoals goals={todaysGoals as Goal[]} today={today} />
 
-      <ReflectCta />
+      <ReflectCta perfectDay={perfectDay} />
     </div>
   );
 }

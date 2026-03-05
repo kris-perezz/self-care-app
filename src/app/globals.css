@@ -367,3 +367,54 @@ body {
   border-radius: 9999px;
   transition: width 0.3s ease;
 }
+
+/* Checkmark bloom: scale pop + expanding ring */
+@keyframes checkmark-bloom {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+@keyframes bloom-ring {
+  0%   { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+.animate-checkmark-bloom { animation: checkmark-bloom 0.4s ease-out both; }
+.animate-bloom-ring {
+  animation: bloom-ring 0.5s ease-out both;
+  position: absolute; inset: 0; border-radius: 9999px;
+  border: 2px solid var(--color-primary-500); pointer-events: none;
+}
+
+/* Mood emoji bounce */
+@keyframes emoji-bounce {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.5); }
+  55%  { transform: scale(0.9); }
+  75%  { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+.animate-emoji-bounce { animation: emoji-bounce 0.35s ease-out both; }
+
+/* Epic shimmer on hard badge */
+@keyframes epic-shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+.animate-epic-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-accent-200) 25%,
+    var(--color-accent-100) 50%,
+    var(--color-accent-200) 75%
+  );
+  background-size: 200% auto;
+  animation: epic-shimmer 2.5s linear infinite;
+}
+
+/* Writing milestone pulse */
+@keyframes milestone-pulse {
+  0%   { transform: scale(1);    opacity: 1; }
+  40%  { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1);    opacity: 0; }
+}
+.animate-milestone-pulse { animation: milestone-pulse 2s ease-out forwards; }

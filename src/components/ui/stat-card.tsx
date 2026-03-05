@@ -23,7 +23,7 @@ export function StatCard({
         {icon ? <span className="shrink-0">{icon}</span> : null}
         <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">{label}</p>
       </div>
-      <p className="font-heading text-3xl font-semibold text-neutral-900">{value}</p>
+      <div className="font-heading text-3xl font-semibold text-neutral-900">{value}</div>
     </Card>
   );
 }
