@@ -1,16 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
-const DAYS = [
-  { label: "Su", value: 0 },
-  { label: "Mo", value: 1 },
-  { label: "Tu", value: 2 },
-  { label: "We", value: 3 },
-  { label: "Th", value: 4 },
-  { label: "Fr", value: 5 },
-  { label: "Sa", value: 6 },
-];
+import { DAYS } from "@/lib/goals";
 
 export function DayPicker({
   initialDays,

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { formatCurrency } from "@/lib/currency";
+import { formatTimestamp } from "@/lib/date";
 import { getMoodEmoji } from "@/lib/moods";
 import type { Reflection } from "@/types";
 import { Badge, Card, FluentEmoji } from "@/components/ui";
@@ -9,11 +10,7 @@ import { Badge, Card, FluentEmoji } from "@/components/ui";
 export function ReflectionCard({ reflection }: { reflection: Reflection }) {
   const [expanded, setExpanded] = useState(false);
 
-  const date = new Date(reflection.created_at).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  const date = formatTimestamp(reflection.created_at);
 
   if (reflection.type === "mood") {
     return (

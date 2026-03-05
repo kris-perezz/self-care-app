@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { PencilSimple } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/components/ui";
 
 export function ModalEditButton({ goalId }: { goalId: string }) {
@@ -19,9 +18,9 @@ export function ModalEditButton({ goalId }: { goalId: string }) {
         }, 0);
       }}
     >
-      <span className="inline-flex items-center justify-center gap-2">
-        <PencilSimple size={16} weight="regular" />
-        Edit goal
+      <span className="flex flex-col items-center gap-1 py-1">
+        <span className="text-xl">✏️</span>
+        <span className="text-tiny">Edit</span>
       </span>
     </Button>
   );

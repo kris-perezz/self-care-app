@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState, useTransition } from "react";
+import { useActionState, useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { updateGoal, deleteGoal, type ActionState } from "../../actions";
 import { DIFFICULTY_REWARDS, formatCurrency } from "@/lib/currency";
 import type { Goal } from "@/types";
@@ -17,9 +18,10 @@ import { TimePicker } from "@/components/ui/time-picker";
 import { DayPicker } from "../../day-picker";
 import { EMOJI, GOAL_EMOJI_OPTIONS } from "@/lib/emoji";
 
-const initialState: ActionState = { error: null };
+const initialState: ActionState = { error: null, success: false };
 
 export function EditGoalForm({ goal }: { goal: Goal }) {
+  const router = useRouter();
   const updateGoalWithId = updateGoal.bind(null, goal.id);
   const [state, formAction, isPending] = useActionState(updateGoalWithId, initialState);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -31,9 +33,18 @@ export function EditGoalForm({ goal }: { goal: Goal }) {
   const [emoji, setEmoji] = useState<string>(goal.emoji || EMOJI.target);
   const [isRecurring, setIsRecurring] = useState((goal.recurring_days?.length ?? 0) > 0);
 
+  useEffect(() => {
+    if (state.success) {
+      router.push("/goals");
+    }
+  }, [router, state.success]);
+
   function handleDelete() {
-    startDeleteTransition(() => {
-      void deleteGoal(goal.id);
+    startDeleteTransition(async () => {
+      const result = await deleteGoal(goal.id);
+      if (!result?.error) {
+        router.push("/goals");
+      }
     });
   }
 

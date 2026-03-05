@@ -2,18 +2,13 @@
 
 import Link from "next/link";
 import { formatCurrency } from "@/lib/currency";
+import { formatTimestamp } from "@/lib/date";
 import type { Goal } from "@/types";
 import { Badge, Card, FluentEmoji } from "@/components/ui";
 import { EMOJI } from "@/lib/emoji";
 
 export function GoalHistoryCard({ goal }: { goal: Goal }) {
-  const completedDate = goal.completed_at
-    ? new Date(goal.completed_at).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
-    : "";
+  const completedDate = goal.completed_at ? formatTimestamp(goal.completed_at) : "";
 
   return (
     <Link href={`/goals/${goal.id}/view?from=me`}>

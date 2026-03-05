@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { DIFFICULTY_REWARDS, type Difficulty } from "@/lib/currency";
 import { computeStreak, getToday } from "@/lib/streak";
@@ -250,7 +249,9 @@ export async function updateGoal(
   }
 
   revalidatePath("/goals");
-  redirect("/goals");
+  revalidatePath("/home");
+  revalidatePath("/me/goals");
+  return { error: null, success: true };
 }
 
 export async function deleteGoal(goalId: string): Promise<ActionState> {
@@ -289,5 +290,7 @@ export async function deleteGoal(goalId: string): Promise<ActionState> {
   }
 
   revalidatePath("/goals");
-  redirect("/goals");
+  revalidatePath("/home");
+  revalidatePath("/me/goals");
+  return { error: null, success: true };
 }

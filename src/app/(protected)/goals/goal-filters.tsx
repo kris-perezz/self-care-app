@@ -23,6 +23,12 @@ export function GoalFilters({
   weekFromNow.setDate(weekFromNow.getDate() + 7);
   const weekEnd = weekFromNow.toLocaleDateString("en-CA");
 
+  function isCompleted(goal: Goal): boolean {
+    return goal.recurring_days
+      ? goal.last_completed_date === today
+      : goal.completed_at !== null;
+  }
+
   const filtered = goals.filter((goal) => {
     if (filter === "all") return true;
     if (filter === "today") {
@@ -53,7 +59,14 @@ export function GoalFilters({
 
       {filtered.length > 0 ? (
         <div className="space-y-3">
-          {filtered.map((goal) => (
+          {[...filtered]
+            .sort((a, b) => {
+              const aDone = isCompleted(a);
+              const bDone = isCompleted(b);
+              if (aDone === bDone) return 0;
+              return aDone ? 1 : -1;
+            })
+            .map((goal) => (
             <GoalCard key={goal.id} goal={goal} today={today} linkToDetails detailsFrom="goals" />
           ))}
         </div>

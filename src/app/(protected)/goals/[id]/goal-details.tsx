@@ -1,20 +1,11 @@
 import Link from "next/link";
 import { ArrowsClockwise, CalendarBlank, Clock, PencilSimple } from "@phosphor-icons/react/dist/ssr";
 import { formatCurrency } from "@/lib/currency";
+import { formatDate, formatTime } from "@/lib/date";
+import { DAY_SHORT, DAY_FULL, formatRecurringDays } from "@/lib/goals";
 import type { Goal } from "@/types";
 import { Badge, Button, Card, FluentEmoji } from "@/components/ui";
 import { EMOJI } from "@/lib/emoji";
-
-const DAY_LABELS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-const DAY_SHORT = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-
-function formatRecurringDays(days: number[]): string {
-  const sorted = [...days].sort((a, b) => a - b);
-  if (sorted.length === 7) return "Every day";
-  if (sorted.length === 5 && !sorted.includes(0) && !sorted.includes(6)) return "Weekdays";
-  if (sorted.length === 2 && sorted.includes(0) && sorted.includes(6)) return "Weekends";
-  return sorted.map((d) => DAY_SHORT[d]).join(" · ");
-}
 
 export function GoalDetailsContent({
   goal,
@@ -88,7 +79,7 @@ export function GoalDetailsContent({
                         ? "bg-primary-500 text-white"
                         : "bg-neutral-100 text-neutral-400"
                     }`}
-                    aria-label={`${DAY_LABELS[d]}${active ? " (scheduled)" : ""}`}
+                    aria-label={`${DAY_FULL[d]}${active ? " (scheduled)" : ""}`}
                   >
                     {DAY_SHORT[d]}
                   </div>
@@ -119,24 +110,4 @@ export function GoalDetailsContent({
       ) : null}
     </div>
   );
-}
-
-function formatDate(date: string): string {
-  const parsed = new Date(`${date}T00:00:00`);
-  if (Number.isNaN(parsed.valueOf())) {
-    return date;
-  }
-  return parsed.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-function formatTime(time: string): string {
-  const [hours, minutes] = time.split(":");
-  const h = parseInt(hours, 10);
-  const ampm = h >= 12 ? "PM" : "AM";
-  const h12 = h % 12 || 12;
-  return `${h12}:${minutes} ${ampm}`;
 }
