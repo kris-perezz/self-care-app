@@ -183,7 +183,11 @@ body {
 
 .app-shell {
   background: transparent;
-  min-height: 100dvh;
+  /* IMPORTANT: Must be 100%, NOT 100dvh/100vh.
+     100% inherits body → html height (which includes env(safe-area-inset-top)),
+     keeping the scroll container flush with the layout. Using a fixed viewport
+     unit breaks that chain and causes unexpected top padding. */
+  min-height: 100%;
   height: 100%;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
