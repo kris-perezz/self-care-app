@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { deleteGoal } from "../actions";
 import { Button } from "@/components/ui";
@@ -14,17 +14,50 @@ export function ModalDeleteButton({
 }) {
   const router = useRouter();
   const [isDeleting, startDeleteTransition] = useTransition();
+  const [showConfirm, setShowConfirm] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  function handleDelete() {
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  function handleFirstTap() {
+    setShowConfirm(true);
+    timeoutRef.current = setTimeout(() => setShowConfirm(false), 3000);
+  }
+
+  function handleConfirmDelete() {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
     startDeleteTransition(async () => {
       const result = await deleteGoal(goalId);
       if (!result?.error) {
-        router.back();
-        setTimeout(() => {
+        const onPopState = () => {
+          window.removeEventListener("popstate", onPopState);
           router.push(redirectTo);
-        }, 0);
+        };
+        window.addEventListener("popstate", onPopState);
+        router.back();
       }
     });
+  }
+
+  if (showConfirm) {
+    return (
+      <Button
+        type="button"
+        variant="destructiveOutline"
+        className="w-full border-warning-900 bg-warning-900 text-white"
+        onClick={handleConfirmDelete}
+        disabled={isDeleting}
+      >
+        <span className="flex flex-col items-center gap-1 py-1">
+          <span className="text-xl">🗑️</span>
+          <span className="text-tiny">{isDeleting ? "Deleting…" : "Confirm?"}</span>
+        </span>
+      </Button>
+    );
   }
 
   return (
@@ -32,12 +65,12 @@ export function ModalDeleteButton({
       type="button"
       variant="destructiveOutline"
       className="w-full"
-      onClick={handleDelete}
+      onClick={handleFirstTap}
       disabled={isDeleting}
     >
       <span className="flex flex-col items-center gap-1 py-1">
         <span className="text-xl">🗑️</span>
-        <span className="text-tiny">{isDeleting ? "Deleting…" : "Delete"}</span>
+        <span className="text-tiny">Delete</span>
       </span>
     </Button>
   );

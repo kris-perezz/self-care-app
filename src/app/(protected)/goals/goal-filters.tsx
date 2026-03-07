@@ -5,6 +5,7 @@ import { FilterButton } from "@/components/filter-button";
 import { GoalCard } from "./goal-card";
 import type { Goal } from "@/types";
 import { EmptyState } from "@/components/ui";
+import { EMOJI } from "@/lib/emoji";
 
 type Filter = "today" | "week" | "all";
 
@@ -43,6 +44,34 @@ export function GoalFilters({
     return true;
   });
 
+  function renderEmptyState() {
+    if (filter === "today") {
+      return (
+        <EmptyState
+          emoji={EMOJI.sparkles}
+          heading="A clear day"
+          message="No goals scheduled for today — enjoy the space."
+        />
+      );
+    }
+    if (filter === "all") {
+      return (
+        <EmptyState
+          emoji={EMOJI.sparkles}
+          heading="All done!"
+          message="Every goal is complete. You showed up."
+        />
+      );
+    }
+    return (
+      <EmptyState
+        emoji={EMOJI.sparkles}
+        heading="A quiet week"
+        message="No goals scheduled for this week."
+      />
+    );
+  }
+
   return (
     <div className="space-y-3">
       <div className="flex gap-2">
@@ -66,20 +95,12 @@ export function GoalFilters({
               if (aDone === bDone) return 0;
               return aDone ? 1 : -1;
             })
-            .map((goal) => (
-            <GoalCard key={goal.id} goal={goal} today={today} linkToDetails detailsFrom="goals" />
+            .map((goal, i) => (
+            <GoalCard key={goal.id} goal={goal} today={today} linkToDetails detailsFrom="goals" index={i} />
           ))}
         </div>
       ) : (
-        <EmptyState
-          message={
-            filter === "today"
-              ? "No goals scheduled for today."
-              : filter === "week"
-              ? "No goals scheduled this week."
-              : "All goals completed! Add a new one to keep going."
-          }
-        />
+        renderEmptyState()
       )}
     </div>
   );

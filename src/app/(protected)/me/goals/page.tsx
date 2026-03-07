@@ -5,6 +5,7 @@ import { formatCurrency } from "@/lib/currency";
 import { GoalHistoryFilters } from "./goal-history-filters";
 import type { Goal } from "@/types";
 import { EmptyState, StatCard } from "@/components/ui";
+import { EMOJI } from "@/lib/emoji";
 import { BackLink } from "@/components/nav/back-link";
 
 export default async function GoalHistoryPage() {
@@ -38,7 +39,9 @@ export default async function GoalHistoryPage() {
 
       {goals.length === 0 ? (
         <EmptyState
-          message="No completed goals yet. Complete some goals to see your history!"
+          emoji={EMOJI.seedling}
+          heading="Nothing yet"
+          message="Completed goals will appear here."
           className="p-8"
         />
       ) : (

@@ -14,11 +14,11 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const variantClasses: Record<CardVariant, string> = {
-  standard: "bg-neutral-50",
-  tintPrimary: "bg-primary-100",
-  tintSecondary: "bg-secondary-100",
-  tintAccent: "bg-accent-100",
-  muted: "bg-neutral-50/70",
+  standard: "bg-neutral-50 shadow-card",
+  tintPrimary: "bg-primary-100 shadow-card-primary",
+  tintSecondary: "bg-secondary-100 shadow-card-secondary",
+  tintAccent: "bg-accent-100 shadow-card-accent",
+  muted: "bg-neutral-50/70 shadow-card",
 };
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
@@ -27,7 +27,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
       <div
         ref={ref}
         className={cn(
-          "rounded-2xl p-4 shadow-card",
+          "rounded-2xl p-4 border border-black/[0.04]",
           variantClasses[variant],
           interactive && "border-2 border-neutral-100",
           interactive && "interactive-card",

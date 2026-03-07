@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { Star, Trash } from "@phosphor-icons/react/dist/ssr";
 import { formatCurrency } from "@/lib/currency";
 import { purchaseReward, setActiveReward, deleteReward } from "./actions";
@@ -24,6 +24,19 @@ export function RewardCard({
   const [isPurchasing, startPurchase] = useTransition();
   const [isSettingActive, startSetActive] = useTransition();
   const [isDeleting, startDelete] = useTransition();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const deleteConfirmTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (deleteConfirmTimeoutRef.current) clearTimeout(deleteConfirmTimeoutRef.current);
+    };
+  }, []);
+
+  function handleDeleteClick() {
+    setShowDeleteConfirm(true);
+    deleteConfirmTimeoutRef.current = setTimeout(() => setShowDeleteConfirm(false), 3000);
+  }
 
   const remaining = Math.max(reward.price - balance, 0);
   const canPurchase = balance >= reward.price;
@@ -62,20 +75,31 @@ export function RewardCard({
             </IconButton>
           ) : null}
 
-          <IconButton
-            onClick={() =>
-              startDelete(async () => {
-                await deleteReward(reward.id);
-              })
-            }
-            disabled={isDeleting}
-            variant="neutral"
-            className="border-2 border-neutral-100 text-neutral-500 hover:border-warning-200 hover:bg-warning-100 hover:text-neutral-900"
-            title="Delete reward"
-            aria-label="Delete reward"
-          >
-            <Trash size={16} weight="regular" />
-          </IconButton>
+          {showDeleteConfirm ? (
+            <Button
+              onClick={() =>
+                startDelete(async () => {
+                  await deleteReward(reward.id);
+                })
+              }
+              disabled={isDeleting}
+              variant="destructiveOutline"
+              size="sm"
+            >
+              Delete?
+            </Button>
+          ) : (
+            <IconButton
+              onClick={handleDeleteClick}
+              disabled={isDeleting}
+              variant="neutral"
+              className="border-2 border-neutral-100 text-neutral-500 hover:border-warning-200 hover:bg-warning-100 hover:text-neutral-900"
+              title="Delete reward"
+              aria-label="Delete reward"
+            >
+              <Trash size={16} weight="regular" />
+            </IconButton>
+          )}
         </div>
       </div>
 

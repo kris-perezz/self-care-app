@@ -13,7 +13,7 @@ export function Modal({
   const router = useRouter();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 px-4 pb-6 pt-16 sm:items-center sm:px-6">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-16 sm:items-center sm:px-6">
       <div
         className="absolute inset-0"
         onClick={() => router.back()}

@@ -46,7 +46,7 @@ export default async function GoalDetailsViewPage({
         <BackLink href={backHref} />
         <h1 className="heading-large text-neutral-900">{goal.title}</h1>
       </div>
-      <GoalDetailsContent goal={goal} />
+      <GoalDetailsContent goal={goal} from={from} />
     </div>
   );
 }

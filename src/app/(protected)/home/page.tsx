@@ -71,8 +71,8 @@ export default async function HomePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="heading-large text-neutral-900">{greeting}</h1>
-        <p className="text-small text-neutral-700">
+        <h1 className="font-heading-italic text-3xl font-semibold text-neutral-900">{greeting}</h1>
+        <p className="text-small text-neutral-700/60">
           {new Date().toLocaleDateString("en-US", {
             weekday: "long",
             month: "long",
@@ -89,15 +89,25 @@ export default async function HomePage() {
         perfectDay={perfectDay}
       />
 
-      <PerfectDayBanner perfectDay={perfectDay} />
-
-      {activeReward && (
-        <RewardProgress reward={activeReward as Reward} balance={balance} />
+      {perfectDay ? (
+        <>
+          <PerfectDayBanner perfectDay={perfectDay} />
+          <ReflectCta perfectDay={perfectDay} />
+          {activeReward && (
+            <RewardProgress reward={activeReward as Reward} balance={balance} />
+          )}
+          <TodaysGoals goals={todaysGoals as Goal[]} today={today} />
+        </>
+      ) : (
+        <>
+          <PerfectDayBanner perfectDay={perfectDay} />
+          {activeReward && (
+            <RewardProgress reward={activeReward as Reward} balance={balance} />
+          )}
+          <TodaysGoals goals={todaysGoals as Goal[]} today={today} />
+          <ReflectCta perfectDay={perfectDay} />
+        </>
       )}
-
-      <TodaysGoals goals={todaysGoals as Goal[]} today={today} />
-
-      <ReflectCta perfectDay={perfectDay} />
     </div>
   );
 }

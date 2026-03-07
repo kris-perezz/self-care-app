@@ -6,10 +6,16 @@ import type { Goal } from "@/types";
 
 export default async function EditGoalPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<{ from?: string }>;
 }) {
   const { id } = await params;
+  const resolvedSearch = searchParams ? await searchParams : undefined;
+  const from = resolvedSearch?.from;
+  const backHref =
+    from === "me" ? "/me/goals" : from === "goals" ? "/goals" : from === "home" ? "/home" : "/goals";
   const supabase = await createClient();
 
   const {
@@ -41,10 +47,10 @@ export default async function EditGoalPage({
   return (
     <div className="space-y-6">
       <div>
-        <BackLink href="/goals" />
+        <BackLink href={backHref} />
         <h1 className="heading-large text-neutral-900">Edit Goal</h1>
       </div>
-      <EditGoalForm goal={goal} />
+      <EditGoalForm goal={goal} backHref={backHref} />
     </div>
   );
 }

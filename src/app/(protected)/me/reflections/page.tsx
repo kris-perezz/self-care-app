@@ -5,6 +5,7 @@ import { formatCurrency } from "@/lib/currency";
 import { ReflectionFilters } from "./reflection-filters";
 import type { Reflection } from "@/types";
 import { EmptyState, StatCard } from "@/components/ui";
+import { EMOJI } from "@/lib/emoji";
 import { BackLink } from "@/components/nav/back-link";
 
 export default async function ReflectionArchivePage() {
@@ -43,7 +44,9 @@ export default async function ReflectionArchivePage() {
 
       {reflections.length === 0 ? (
         <EmptyState
-          message="No reflections yet. Start writing to see your archive!"
+          emoji={EMOJI.writing}
+          heading="Your first entry awaits"
+          message="Write anything — even 10 words counts toward your balance."
           className="p-8"
         />
       ) : (

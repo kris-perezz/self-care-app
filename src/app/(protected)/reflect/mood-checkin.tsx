@@ -37,7 +37,7 @@ export function MoodCheckin({ hasMoodToday }: { hasMoodToday: boolean }) {
               onClick={() => handleMood(mood.label.toLowerCase())}
               disabled={isPending}
               className={[
-                "flex flex-col items-center gap-1 rounded-xl p-2 transition-all duration-200",
+                "flex flex-1 flex-col items-center gap-1 rounded-xl p-2 transition-all duration-200 min-h-[44px] justify-center",
                 isSelected ? "ring-2 ring-accent-400" : "",
                 isFaded ? "scale-90 opacity-40" : "",
                 !selected ? "hover:bg-neutral-50" : "",

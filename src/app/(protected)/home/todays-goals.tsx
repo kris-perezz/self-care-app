@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { GoalCard } from "../goals/goal-card";
 import type { Goal } from "@/types";
-import { Button } from "@/components/ui";
+import { Button, EmptyState } from "@/components/ui";
+import { EMOJI } from "@/lib/emoji";
 
 function isCompletedToday(goal: Goal, today: string): boolean {
   return goal.recurring_days
@@ -34,7 +35,7 @@ export function TodaysGoals({
               if (aDone === bDone) return 0;
               return aDone ? 1 : -1;
             })
-            .map((goal) => (
+            .map((goal, i) => (
             <GoalCard
               key={goal.id}
               goal={goal}
@@ -42,13 +43,16 @@ export function TodaysGoals({
               detailsFrom="home"
               actions="full"
               today={today}
+              index={i}
             />
           ))}
         </div>
       ) : (
-        <p className="text-body text-neutral-700/70">
-          No goals scheduled for today. Add some from the Goals tab!
-        </p>
+        <EmptyState
+          emoji={EMOJI.sparkles}
+          heading="A clear day"
+          message="No goals scheduled for today — enjoy the space."
+        />
       )}
 
       <Button asChild variant="ghostAccent" className="w-full">

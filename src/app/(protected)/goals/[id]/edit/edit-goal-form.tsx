@@ -20,7 +20,7 @@ import { EMOJI, GOAL_EMOJI_OPTIONS } from "@/lib/emoji";
 
 const initialState: ActionState = { error: null, success: false };
 
-export function EditGoalForm({ goal }: { goal: Goal }) {
+export function EditGoalForm({ goal, backHref = "/goals" }: { goal: Goal; backHref?: string }) {
   const router = useRouter();
   const updateGoalWithId = updateGoal.bind(null, goal.id);
   const [state, formAction, isPending] = useActionState(updateGoalWithId, initialState);
@@ -35,15 +35,15 @@ export function EditGoalForm({ goal }: { goal: Goal }) {
 
   useEffect(() => {
     if (state.success) {
-      router.push("/goals");
+      router.push(backHref);
     }
-  }, [router, state.success]);
+  }, [router, state.success, backHref]);
 
   function handleDelete() {
     startDeleteTransition(async () => {
       const result = await deleteGoal(goal.id);
       if (!result?.error) {
-        router.push("/goals");
+        router.push(backHref);
       }
     });
   }

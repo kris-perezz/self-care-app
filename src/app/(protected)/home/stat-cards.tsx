@@ -45,7 +45,7 @@ export function StatCards({
         variant="tintPrimary"
         label="Day streak"
         value={getStreakDisplay(streak)}
-        className={streak >= 7 ? "ring-2 ring-warning-300" : undefined}
+        className={streak >= 7 ? "ring-2 ring-warning-500" : undefined}
       />
       <StatCard
         variant={perfectDay ? "tintPrimary" : "tintSecondary"}

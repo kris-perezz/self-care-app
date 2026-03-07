@@ -97,7 +97,7 @@ function MenuItem({
         ) : null}
       </span>
 
-      <CaretRight size={16} weight="regular" className="text-neutral-700/70" />
+      {href ? <CaretRight size={16} weight="regular" className="text-neutral-700/70" /> : null}
     </>
   );
 

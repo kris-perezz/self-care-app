@@ -42,7 +42,7 @@ export default async function GoalDetailsModal({
     <Modal title="Goal details">
       <GoalDetailsContent goal={goal} showEdit={false} />
       <div className="mt-3 grid grid-cols-2 gap-2">
-        <ModalEditButton goalId={goal.id} />
+        <ModalEditButton goalId={goal.id} from={from} />
         <ModalDeleteButton goalId={goal.id} redirectTo={redirectTo} />
       </div>
     </Modal>

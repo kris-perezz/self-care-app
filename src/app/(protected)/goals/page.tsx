@@ -7,6 +7,7 @@ import { GoalFilters } from "./goal-filters";
 import { CompletedSection } from "./completed-section";
 import type { Goal } from "@/types";
 import { Button, EmptyState } from "@/components/ui";
+import { EMOJI } from "@/lib/emoji";
 
 export const dynamic = "force-dynamic";
 
@@ -51,7 +52,9 @@ export default async function GoalsPage() {
 
       {goals.length === 0 ? (
         <EmptyState
-          message="No goals yet. Create your first self-care goal to get started!"
+          emoji={EMOJI.seedling}
+          heading="Your story starts here"
+          message="Create your first goal and start earning rewards."
           className="p-8"
         />
       ) : (

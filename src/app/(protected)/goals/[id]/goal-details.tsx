@@ -10,9 +10,11 @@ import { EMOJI } from "@/lib/emoji";
 export function GoalDetailsContent({
   goal,
   showEdit = true,
+  from,
 }: {
   goal: Goal;
   showEdit?: boolean;
+  from?: string;
 }) {
   const isCompleted = goal.recurring_days
     ? false // recurring goals are never "permanently" completed
@@ -98,9 +100,9 @@ export function GoalDetailsContent({
         ) : null}
       </Card>
 
-      {showEdit ? (
+      {showEdit && !isCompleted ? (
         <Button asChild variant="ghostAccent" className="w-full">
-          <Link href={`/goals/${goal.id}/edit`}>
+          <Link href={from ? `/goals/${goal.id}/edit?from=${from}` : `/goals/${goal.id}/edit`}>
             <span className="inline-flex items-center justify-center gap-2">
               <PencilSimple size={16} weight="regular" />
               Edit goal

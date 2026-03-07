@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui";
 
-export function ModalEditButton({ goalId }: { goalId: string }) {
+export function ModalEditButton({ goalId, from }: { goalId: string; from?: string }) {
   const router = useRouter();
 
   return (
@@ -12,10 +12,15 @@ export function ModalEditButton({ goalId }: { goalId: string }) {
       variant="ghostAccent"
       className="w-full"
       onClick={() => {
+        const href = from
+          ? `/goals/${goalId}/edit?from=${from}`
+          : `/goals/${goalId}/edit`;
+        const onPopState = () => {
+          window.removeEventListener("popstate", onPopState);
+          router.push(href);
+        };
+        window.addEventListener("popstate", onPopState);
         router.back();
-        setTimeout(() => {
-          router.push(`/goals/${goalId}/edit`);
-        }, 0);
       }}
     >
       <span className="flex flex-col items-center gap-1 py-1">

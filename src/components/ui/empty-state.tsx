@@ -1,15 +1,18 @@
 import Link from "next/link";
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { FluentEmoji } from "./fluent-emoji";
 
 export interface EmptyStateProps {
   message: string;
+  emoji?: string;
+  heading?: string;
   icon?: ReactNode;
   action?: { label: string; href: string };
   className?: string;
 }
 
-export function EmptyState({ message, icon, action, className }: EmptyStateProps) {
+export function EmptyState({ message, emoji, heading, icon, action, className }: EmptyStateProps) {
   return (
     <div
       className={cn(
@@ -17,7 +20,16 @@ export function EmptyState({ message, icon, action, className }: EmptyStateProps
         className
       )}
     >
-      {icon ? <div className="mb-3 flex justify-center">{icon}</div> : null}
+      {emoji ? (
+        <div className="mb-3 flex justify-center">
+          <FluentEmoji emoji={emoji} size={56} />
+        </div>
+      ) : icon ? (
+        <div className="mb-3 flex justify-center">{icon}</div>
+      ) : null}
+      {heading ? (
+        <p className="heading-section mb-1 text-neutral-900">{heading}</p>
+      ) : null}
       <p className="text-body text-neutral-600">{message}</p>
       {action ? (
         <Link

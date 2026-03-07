@@ -104,6 +104,9 @@
   --shadow-card: 0 4px 16px rgba(31, 31, 31, 0.10);
   --shadow-card-hover: 0 8px 24px rgba(31, 31, 31, 0.16);
   --shadow-card-active: 0 2px 8px rgba(31, 31, 31, 0.10);
+  --shadow-card-primary: 0 4px 20px rgba(116, 161, 46, 0.14);
+  --shadow-card-accent: 0 4px 20px rgba(244, 166, 182, 0.18);
+  --shadow-card-secondary: 0 4px 20px rgba(212, 153, 111, 0.14);
   --shadow-button: 0 2px 8px rgba(31, 31, 31, 0.12);
   --shadow-button-hover: 0 6px 16px rgba(31, 31, 31, 0.18);
   --shadow-button-active: 0 1px 4px rgba(31, 31, 31, 0.10);
@@ -114,10 +117,46 @@
   --color-primary-dark: var(--color-primary-700);
 }
 
+/* Animatable blob position properties */
+@property --blob1-x { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
+@property --blob1-y { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
+@property --blob2-x { syntax: '<percentage>'; inherits: false; initial-value: 100%; }
+@property --blob2-y { syntax: '<percentage>'; inherits: false; initial-value: 100%; }
+@property --blob3-x { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
+@property --blob3-y { syntax: '<percentage>'; inherits: false; initial-value: 70%; }
+
+@keyframes blob1-drift {
+  0%, 100% { --blob1-x: 50%; --blob1-y: 0%; }
+  40%       { --blob1-x: 36%; --blob1-y: 10%; }
+  70%       { --blob1-x: 64%; --blob1-y: 5%; }
+}
+
+@keyframes blob2-drift {
+  0%, 100% { --blob2-x: 100%; --blob2-y: 100%; }
+  35%      { --blob2-x: 82%;  --blob2-y: 85%; }
+  65%      { --blob2-x: 95%;  --blob2-y: 78%; }
+}
+
+@keyframes blob3-drift {
+  0%, 100% { --blob3-x: 0%;   --blob3-y: 70%; }
+  45%      { --blob3-x: 14%;  --blob3-y: 84%; }
+  75%      { --blob3-x: -6%;  --blob3-y: 58%; }
+}
+
 html {
-  /* Gradient lives on html so iOS elastic-scroll bounce reveals the same gradient,
-     not a flat colour. background-attachment: fixed pins it to the viewport. */
-  background: linear-gradient(to top, var(--color-neutral-50), var(--color-accent-50));
+  /* Layered background: noise grain + animated radial glows + base colour.
+     Lives on html so iOS elastic-scroll bounce shows the same background. */
+  will-change: background;
+  animation:
+    blob1-drift 22s ease-in-out infinite,
+    blob2-drift 28s ease-in-out infinite,
+    blob3-drift 19s ease-in-out infinite;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse 90% 60% at var(--blob1-x) var(--blob1-y), var(--color-primary-100) 0%, var(--color-primary-50) 35%, transparent 55%),
+    radial-gradient(ellipse 70% 55% at var(--blob2-x) var(--blob2-y), var(--color-accent-100) 0%, var(--color-accent-50) 35%, transparent 52%),
+    radial-gradient(ellipse 65% 55% at var(--blob3-x) var(--blob3-y), var(--color-secondary-100) 0%, var(--color-secondary-50) 35%, transparent 55%),
+    var(--color-neutral-50);
   background-attachment: fixed;
   color: var(--color-neutral-900);
   font-family: var(--font-body), system-ui, sans-serif;
@@ -133,6 +172,8 @@ html {
 body {
   /* Must be transparent — a flat background-color here is what causes the
      white/off-white flash during iOS rubber-band overscroll. */
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
   background: transparent;
   height: 100%;
   min-height: 100%;
@@ -142,7 +183,7 @@ body {
 
 .app-shell {
   background: transparent;
-  min-height: 100%;
+  min-height: 100dvh;
   height: 100%;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -208,10 +249,12 @@ body {
   box-shadow: var(--shadow-button);
 }
 
-.interactive-button:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-button-hover);
-  filter: brightness(0.9);
+@media (hover: hover) and (pointer: fine) {
+  .interactive-button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-button-hover);
+    filter: brightness(0.9);
+  }
 }
 
 .interactive-button:active {
@@ -232,10 +275,12 @@ body {
   cursor: pointer;
 }
 
-.interactive-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-card-hover);
-  filter: brightness(0.98);
+@media (hover: hover) and (pointer: fine) {
+  .interactive-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card-hover);
+    filter: brightness(0.98);
+  }
 }
 
 .interactive-card:active {
@@ -382,7 +427,7 @@ body {
 .animate-bloom-ring {
   animation: bloom-ring 0.5s ease-out both;
   position: absolute; inset: 0; border-radius: 9999px;
-  border: 2px solid var(--color-primary-500); pointer-events: none;
+  border: 2px solid var(--bloom-color, var(--color-primary-500)); pointer-events: none;
 }
 
 /* Mood emoji bounce */
@@ -403,12 +448,31 @@ body {
 .animate-epic-shimmer {
   background: linear-gradient(
     90deg,
-    var(--color-accent-200) 25%,
-    var(--color-accent-100) 50%,
-    var(--color-accent-200) 75%
+    var(--color-accent-100) 25%,
+    var(--color-accent-50) 50%,
+    var(--color-accent-100) 75%
   );
   background-size: 200% auto;
   animation: epic-shimmer 2.5s linear infinite;
+}
+
+/* Fraunces italic utility */
+.font-heading-italic {
+  font-family: var(--font-heading), Georgia, serif;
+  font-style: italic;
+}
+
+/* Floating reward label on goal complete */
+@keyframes float-reward {
+  0%   { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-40px); }
+}
+.animate-float-reward {
+  animation: float-reward 900ms ease-out forwards;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary-700);
+  white-space: nowrap;
 }
 
 /* Writing milestone pulse */
@@ -418,3 +482,23 @@ body {
   100% { transform: scale(1);    opacity: 0; }
 }
 .animate-milestone-pulse { animation: milestone-pulse 2s ease-out forwards; }
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    animation: none;
+  }
+  .page-enter,
+  .animate-checkmark-bloom,
+  .animate-bloom-ring,
+  .animate-emoji-bounce,
+  .animate-epic-shimmer,
+  .animate-float-reward,
+  .animate-milestone-pulse {
+    animation: none;
+  }
+  .skeleton {
+    animation: none;
+    background: var(--color-neutral-100);
+  }
+}

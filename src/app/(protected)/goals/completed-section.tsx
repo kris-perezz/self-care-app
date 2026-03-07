@@ -14,7 +14,7 @@ export function CompletedSection({ goals }: { goals: Goal[] }) {
     <div>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center gap-2 py-2 text-small text-neutral-700/70"
+        className="flex w-full items-center gap-2 py-3 text-small text-neutral-700/70"
       >
         <CaretRight
           size={16}
@@ -23,13 +23,15 @@ export function CompletedSection({ goals }: { goals: Goal[] }) {
         />
         Completed ({goals.length})
       </button>
-      {isOpen && (
-        <div className="space-y-3">
-          {goals.map((goal) => (
-            <GoalCard key={goal.id} goal={goal} />
-          ))}
+      <div className={`grid transition-all duration-200 ${isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
+        <div className="overflow-hidden">
+          <div className="space-y-3 pt-1">
+            {goals.map((goal) => (
+              <GoalCard key={goal.id} goal={goal} />
+            ))}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

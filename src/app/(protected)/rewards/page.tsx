@@ -8,6 +8,7 @@ import { NewRewardForm } from "./new-reward-form";
 import { PresetRewards } from "./preset-rewards";
 import type { Reward } from "@/types";
 import { Card, EmptyState, FluentEmoji } from "@/components/ui";
+import { EMOJI } from "@/lib/emoji";
 
 export default async function RewardsPage() {
   const done = perf("[server] /rewards total");
@@ -48,7 +49,11 @@ export default async function RewardsPage() {
             ))}
           </div>
         ) : (
-          <EmptyState message="Add a reward to start saving toward something!" />
+          <EmptyState
+            emoji={EMOJI.gift}
+            heading="Something to work toward"
+            message="Add a real-life reward and start saving up for it."
+          />
         )}
 
         <NewRewardForm />
