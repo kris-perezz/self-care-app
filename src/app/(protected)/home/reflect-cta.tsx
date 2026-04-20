@@ -6,8 +6,9 @@ export function ReflectCta({ perfectDay }: { perfectDay?: boolean }) {
   if (perfectDay) {
     return (
       <Card variant="tintAccent">
-        <p className="text-small font-medium text-neutral-900">
-          All done today! Write about your perfect day? ✍️
+        <p className="flex items-center gap-1.5 text-small font-medium text-neutral-900">
+          All done today! Write about your perfect day?
+          <FluentEmoji emoji={EMOJI.writing} size={18} />
         </p>
         <p className="mt-0.5 font-heading-italic text-tiny text-neutral-500">Even 10 words counts.</p>
         <Button asChild variant="primary" className="mt-3 w-full">

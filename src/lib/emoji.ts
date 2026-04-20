@@ -21,6 +21,10 @@ export const EMOJI = {
   seedling: "\u{1F331}",
   herb: "\u{1F33F}",
   lightning: "\u26A1",
+  scale: "\u2696\uFE0F",
+  wave: "\u{1F44B}",
+  waterWave: "\u{1F30A}",
+  greenHeart: "\u{1F49A}",
 } as const;
 
 export const GOAL_EMOJI_OPTIONS = [

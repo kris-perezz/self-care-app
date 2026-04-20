@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { Card } from "@/components/ui";
+import { Card, FluentEmoji } from "@/components/ui";
+import { EMOJI } from "@/lib/emoji";
 
 export function PerfectDayBanner({ perfectDay }: { perfectDay: boolean }) {
   useEffect(() => {
@@ -23,8 +24,9 @@ export function PerfectDayBanner({ perfectDay }: { perfectDay: boolean }) {
 
   return (
     <Card variant="tintPrimary">
-      <p className="font-heading-italic text-body font-semibold text-primary-700">
-        ✨ Perfect Day! All goals complete.
+      <p className="flex items-center gap-1.5 font-heading-italic text-body font-semibold text-primary-700">
+        <FluentEmoji emoji={EMOJI.sparkles} size={18} />
+        Perfect Day! All goals complete.
       </p>
     </Card>
   );

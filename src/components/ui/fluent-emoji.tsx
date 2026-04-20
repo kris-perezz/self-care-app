@@ -24,6 +24,11 @@ const EMOJI_ASSET_MAP: Record<string, string> = {
   [EMOJI.seedling]: "seedling.svg",
   [EMOJI.herb]: "herb.svg",
   [EMOJI.lightning]: "lightning.svg",
+  [EMOJI.neutral]: "neutral.svg",
+  [EMOJI.scale]: "scale.svg",
+  [EMOJI.wave]: "wave.svg",
+  [EMOJI.waterWave]: "water-wave.svg",
+  [EMOJI.greenHeart]: "green-heart.svg",
 };
 
 export interface FluentEmojiProps {

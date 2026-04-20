@@ -8,6 +8,8 @@ import { ReflectCta } from "./reflect-cta";
 import { TodaysGoals } from "./todays-goals";
 import { PerfectDayBanner } from "./perfect-day-banner";
 import type { Goal, Reward, UserProfile } from "@/types";
+import { FluentEmoji } from "@/components/ui";
+import { EMOJI } from "@/lib/emoji";
 
 export default async function HomePage() {
   const done = perf("[server] /home total");
@@ -54,7 +56,8 @@ export default async function HomePage() {
       : localHour >= 12 && localHour < 18
         ? "Good afternoon"
         : "Good evening";
-  const greeting = displayName ? `${timeGreeting}, ${displayName}` : `${timeGreeting} 👋`;
+  const greeting = displayName ? `${timeGreeting}, ${displayName}` : timeGreeting;
+  const showWave = !displayName;
   const today = getToday(timezone);
   const todayDow = new Date(new Date().toLocaleString("en-US", { timeZone: timezone })).getDay();
 
@@ -71,7 +74,10 @@ export default async function HomePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-heading-italic text-3xl font-semibold text-neutral-900">{greeting}</h1>
+        <h1 className="flex items-center gap-2 font-heading-italic text-3xl font-semibold text-neutral-900">
+          {greeting}
+          {showWave && <FluentEmoji emoji={EMOJI.wave} size={28} />}
+        </h1>
         <p className="text-small text-neutral-700/60">
           {new Date().toLocaleDateString("en-US", {
             weekday: "long",

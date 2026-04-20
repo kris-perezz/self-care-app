@@ -46,6 +46,14 @@ export interface UserProfile {
   created_at: string;
 }
 
+export interface WeightLog {
+  id: string;
+  user_id: string;
+  weight_lbs: number;
+  logged_date: string;
+  created_at: string;
+}
+
 export interface Reward {
   id: string;
   user_id: string;

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Trash } from "@phosphor-icons/react";
 import { deleteGoal } from "../actions";
 import { Button } from "@/components/ui";
 
@@ -53,7 +54,7 @@ export function ModalDeleteButton({
         disabled={isDeleting}
       >
         <span className="flex flex-col items-center gap-1 py-1">
-          <span className="text-xl">🗑️</span>
+          <Trash size={24} />
           <span className="text-tiny">{isDeleting ? "Deleting…" : "Confirm?"}</span>
         </span>
       </Button>
@@ -69,7 +70,7 @@ export function ModalDeleteButton({
       disabled={isDeleting}
     >
       <span className="flex flex-col items-center gap-1 py-1">
-        <span className="text-xl">🗑️</span>
+        <Trash size={24} />
         <span className="text-tiny">Delete</span>
       </span>
     </Button>

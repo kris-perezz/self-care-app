@@ -62,6 +62,7 @@ export default async function MePage() {
       <div className="space-y-2">
         <MenuItem emoji={EMOJI.chart} label="Goal history" href="/me/goals" />
         <MenuItem emoji={EMOJI.books} label="Reflection archive" href="/me/reflections" />
+        <MenuItem emoji={EMOJI.scale} label="Weight" href="/me/weight" />
         <MenuItem emoji={EMOJI.sparkles} label="Monthly summaries" sublabel="Coming soon" />
         <MenuItem emoji={EMOJI.gear} label="Settings" href="/me/settings" />
       </div>

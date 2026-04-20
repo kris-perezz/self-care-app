@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 import { saveReflection, type ReflectActionState } from "../actions";
 import { formatCurrency } from "@/lib/currency";
 import { calculateReflectionEarnings } from "@/lib/writing-prompts";
-import { Button, Textarea } from "@/components/ui";
+import { Button, FluentEmoji, Textarea } from "@/components/ui";
+import { EMOJI } from "@/lib/emoji";
 
 const MILESTONES = [
-  { words: 25,  msg: "Keep going ✨",       border: false },
-  { words: 60,  msg: "You're in flow 🌊",   border: true  },
-  { words: 110, msg: "Deep reflection 💚",  border: true  },
+  { words: 25,  msg: "Keep going",      emoji: EMOJI.sparkles,   border: false },
+  { words: 60,  msg: "You're in flow",  emoji: EMOJI.waterWave,  border: true  },
+  { words: 110, msg: "Deep reflection", emoji: EMOJI.greenHeart, border: true  },
 ];
 
 const AFFIRMATIONS = [
@@ -48,7 +49,7 @@ export function WritingForm({
   const router = useRouter();
   const [state, formAction, isPending] = useActionState(saveReflection, initialState);
   const [wordCount, setWordCount] = useState(0);
-  const [milestone, setMilestone] = useState<string | null>(null);
+  const [milestone, setMilestone] = useState<{ msg: string; emoji: string } | null>(null);
   const milestoneTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const firedMilestones = useRef<Set<number>>(new Set());
   const [affirmationIndex] = useState(() => Math.floor(Math.random() * AFFIRMATIONS.length));
@@ -61,7 +62,7 @@ export function WritingForm({
     for (const m of MILESTONES) {
       if (words >= m.words && !firedMilestones.current.has(m.words)) {
         firedMilestones.current.add(m.words);
-        setMilestone(m.msg);
+        setMilestone({ msg: m.msg, emoji: m.emoji });
         if (milestoneTimer.current) clearTimeout(milestoneTimer.current);
         milestoneTimer.current = setTimeout(() => setMilestone(null), 2000);
         // Show the highest newly-crossed milestone (last one wins in loop order)
@@ -123,8 +124,9 @@ export function WritingForm({
         <span className="flex items-center gap-2">
           <span>{wordCount} words</span>
           {milestone && (
-            <span className="animate-milestone-pulse rounded-full bg-primary-100 px-2 py-0.5 text-tiny font-semibold text-primary-700">
-              {milestone}
+            <span className="animate-milestone-pulse inline-flex items-center gap-1 rounded-full bg-primary-100 px-2 py-0.5 text-tiny font-semibold text-primary-700">
+              <FluentEmoji emoji={milestone.emoji} size={14} />
+              {milestone.msg}
             </span>
           )}
         </span>
