@@ -4,6 +4,8 @@ import { useState } from "react";
 import { FilterButton } from "@/components/filter-button";
 import { GoalCard } from "./goal-card";
 import type { Goal } from "@/types";
+import { isIntervalGoal, isRecurringGoal } from "@/types";
+import { getIsDue } from "@/lib/streak";
 import { EmptyState } from "@/components/ui";
 import { EMOJI } from "@/lib/emoji";
 
@@ -13,10 +15,12 @@ export function GoalFilters({
   goals,
   today,
   todayDow,
+  timezone,
 }: {
   goals: Goal[];
   today: string;
   todayDow: number;
+  timezone: string;
 }) {
   const [filter, setFilter] = useState<Filter>("all");
 
@@ -25,19 +29,21 @@ export function GoalFilters({
   const weekEnd = weekFromNow.toLocaleDateString("en-CA");
 
   function isCompleted(goal: Goal): boolean {
-    return goal.recurring_days
-      ? goal.last_completed_date === today
-      : goal.completed_at !== null;
+    if (isIntervalGoal(goal)) return false; // interval goals are never permanently done
+    if (isRecurringGoal(goal)) return goal.last_completed_date === today;
+    return goal.completed_at !== null;
   }
 
   const filtered = goals.filter((goal) => {
     if (filter === "all") return true;
     if (filter === "today") {
-      if (goal.recurring_days) return goal.recurring_days.includes(todayDow);
+      if (isIntervalGoal(goal)) return getIsDue(goal, timezone);
+      if (isRecurringGoal(goal)) return goal.recurring_days.includes(todayDow);
       return goal.scheduled_date === today;
     }
     if (filter === "week") {
-      if (goal.recurring_days) return true; // recurring goals are always relevant this week
+      if (isIntervalGoal(goal)) return getIsDue(goal, timezone);
+      if (isRecurringGoal(goal)) return true;
       if (!goal.scheduled_date) return false;
       return goal.scheduled_date >= today && goal.scheduled_date <= weekEnd;
     }

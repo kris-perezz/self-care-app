@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getBalance, getUser } from "@/lib/queries";
-import { getToday } from "@/lib/streak";
+import { getToday, getIsDue } from "@/lib/streak";
+import { isIntervalGoal, isRecurringGoal } from "@/types";
 import { perf } from "@/lib/perf";
 import { StatCards } from "./stat-cards";
 import { RewardProgress } from "./reward-progress";
@@ -29,7 +30,7 @@ export default async function HomePage() {
         .single(),
       supabase
         .from("goals")
-        .select("id, title, emoji, scheduled_date, completed_at, difficulty, currency_reward, recurring_days, last_completed_date")
+        .select("id, title, emoji, scheduled_date, completed_at, difficulty, currency_reward, recurring_days, last_completed_date, recurrence_interval, recurrence_unit, last_completed_at")
         .eq("user_id", user.id)
         .order("created_at", { ascending: true }),
       supabase
@@ -62,12 +63,16 @@ export default async function HomePage() {
   const todayDow = new Date(new Date().toLocaleString("en-US", { timeZone: timezone })).getDay();
 
   const allGoals = (goals as Goal[]) ?? [];
-  const todaysGoals = allGoals.filter(
-    (g) => g.scheduled_date === today || g.recurring_days?.includes(todayDow)
-  );
-  const completedToday = todaysGoals.filter((g) =>
-    g.recurring_days ? g.last_completed_date === today : g.completed_at !== null
-  ).length;
+  const todaysGoals = allGoals.filter((g) => {
+    if (isIntervalGoal(g)) return getIsDue(g, timezone);
+    if (isRecurringGoal(g)) return g.recurring_days.includes(todayDow);
+    return g.scheduled_date === today;
+  });
+  const completedToday = todaysGoals.filter((g) => {
+    if (isIntervalGoal(g)) return false; // interval goals are never permanently "done"
+    if (isRecurringGoal(g)) return g.last_completed_date === today;
+    return g.completed_at !== null;
+  }).length;
 
   const perfectDay = todaysGoals.length > 0 && completedToday === todaysGoals.length;
 

@@ -11,7 +11,27 @@ export interface Goal {
   completed_at: string | null;
   recurring_days: number[] | null;
   last_completed_date: string | null;
+  recurrence_interval: number | null;
+  recurrence_unit: "hours" | "days" | "months" | null;
+  last_completed_at: string | null;
   created_at: string;
+}
+
+export function isIntervalGoal(
+  goal: Goal
+): goal is Goal & {
+  recurrence_interval: number;
+  recurrence_unit: "hours" | "days" | "months";
+} {
+  return goal.recurrence_interval !== null && goal.recurrence_unit !== null;
+}
+
+export function isRecurringGoal(goal: Goal): goal is Goal & { recurring_days: number[] } {
+  return goal.recurring_days !== null && goal.recurring_days.length > 0;
+}
+
+export function isOneTimeGoal(goal: Goal): boolean {
+  return !isIntervalGoal(goal) && !isRecurringGoal(goal);
 }
 
 export interface Reflection {

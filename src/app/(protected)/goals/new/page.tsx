@@ -27,7 +27,10 @@ export default function NewGoalPage() {
   const [scheduledDate, setScheduledDate] = useState<string | null>(null);
   const [scheduledTime, setScheduledTime] = useState<string | null>(null);
   const [emoji, setEmoji] = useState<string>(EMOJI.target);
-  const [isRecurring, setIsRecurring] = useState(false);
+  type ScheduleMode = "one-time" | "weekly" | "interval";
+  const [scheduleMode, setScheduleMode] = useState<ScheduleMode>("one-time");
+  const [intervalValue, setIntervalValue] = useState("1");
+  const [intervalUnit, setIntervalUnit] = useState<"hours" | "days" | "months">("days");
 
   useEffect(() => {
     if (state.success) {
@@ -98,11 +101,36 @@ export default function NewGoalPage() {
           </div>
         </Field>
 
-        <Field label="Recurring days" hint="(optional)">
-          <DayPicker onHasSelection={setIsRecurring} />
+        <Field label="Schedule">
+          <div className="mt-2 flex gap-2">
+            {([
+              { value: "one-time", label: "One-time" },
+              { value: "weekly", label: "Weekly" },
+              { value: "interval", label: "Interval" },
+            ] as const).map(({ value, label }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setScheduleMode(value)}
+                className={`flex flex-1 cursor-pointer items-center justify-center rounded-2xl border-2 px-3 py-2.5 text-small font-medium transition-colors ${
+                  scheduleMode === value
+                    ? "border-primary-500 bg-primary-50 text-primary-700"
+                    : "border-neutral-100 bg-neutral-50 text-neutral-600"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </Field>
 
-        {!isRecurring && (
+        {scheduleMode === "weekly" && (
+          <Field label="Repeat on">
+            <DayPicker onHasSelection={() => {}} />
+          </Field>
+        )}
+
+        {scheduleMode === "one-time" && (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="Date" hint="(optional)" className="min-w-0">
               <DatePicker
@@ -111,7 +139,6 @@ export default function NewGoalPage() {
                 onChange={setScheduledDate}
               />
             </Field>
-
             <Field label="Time" hint="(optional)" className="min-w-0">
               <TimePicker
                 name="scheduled_time"
@@ -120,6 +147,40 @@ export default function NewGoalPage() {
               />
             </Field>
           </div>
+        )}
+
+        {scheduleMode === "interval" && (
+          <>
+            <input type="hidden" name="recurrence_interval" value={intervalValue} />
+            <input type="hidden" name="recurrence_unit" value={intervalUnit} />
+            <Field label="Repeat every">
+              <div className="mt-2 flex gap-2">
+                <Input
+                  type="number"
+                  min="1"
+                  value={intervalValue}
+                  onChange={(e) => setIntervalValue(e.target.value)}
+                  className="w-24"
+                />
+                <select
+                  value={intervalUnit}
+                  onChange={(e) => setIntervalUnit(e.target.value as "hours" | "days" | "months")}
+                  className="flex-1 rounded-2xl border-2 border-neutral-100 bg-neutral-50 px-3 py-2 text-small text-neutral-900 focus:border-primary-500 focus:outline-none"
+                >
+                  <option value="hours">Hours</option>
+                  <option value="days">Days</option>
+                  <option value="months">Months</option>
+                </select>
+              </div>
+            </Field>
+            <Field label="Time" hint="(optional)">
+              <TimePicker
+                name="scheduled_time"
+                value={scheduledTime}
+                onChange={setScheduledTime}
+              />
+            </Field>
+          </>
         )}
 
         <Button type="submit" disabled={isPending} className="w-full">

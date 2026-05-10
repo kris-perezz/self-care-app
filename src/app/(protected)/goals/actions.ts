@@ -3,8 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { DIFFICULTY_REWARDS, type Difficulty } from "@/lib/currency";
-import { computeStreak, getToday } from "@/lib/streak";
+import { computeStreak, getToday, getIsDue } from "@/lib/streak";
 import { EMOJI } from "@/lib/emoji";
+import { isIntervalGoal, isRecurringGoal } from "@/types";
 
 export type ActionState = {
   error: string | null;
@@ -17,6 +18,44 @@ function parseRecurringDays(raw: string | null): number[] | null {
     raw.split(",").map(Number).filter((n) => Number.isInteger(n) && n >= 0 && n <= 6)
   )];
   return days.length > 0 ? days : null;
+}
+
+function parseIntervalFields(formData: FormData): {
+  recurrenceInterval: number | null;
+  recurrenceUnit: "hours" | "days" | "months" | null;
+  error?: string;
+} {
+  const rawInterval = formData.get("recurrence_interval") as string | null;
+  const rawUnit = formData.get("recurrence_unit") as string | null;
+
+  if (!rawInterval && !rawUnit) return { recurrenceInterval: null, recurrenceUnit: null };
+
+  if (!rawInterval || !rawUnit) {
+    return { recurrenceInterval: null, recurrenceUnit: null, error: "Both interval and unit are required" };
+  }
+
+  const interval = parseInt(rawInterval, 10);
+  if (isNaN(interval) || interval < 1) {
+    return { recurrenceInterval: null, recurrenceUnit: null, error: "Interval must be at least 1" };
+  }
+
+  const validUnits = ["hours", "days", "months"] as const;
+  if (!validUnits.includes(rawUnit as "hours" | "days" | "months")) {
+    return { recurrenceInterval: null, recurrenceUnit: null, error: "Invalid recurrence unit" };
+  }
+  const unit = rawUnit as "hours" | "days" | "months";
+
+  if (unit === "hours" && interval > 720) {
+    return { recurrenceInterval: null, recurrenceUnit: null, error: "Hour interval cannot exceed 720" };
+  }
+  if (unit === "days" && interval > 365) {
+    return { recurrenceInterval: null, recurrenceUnit: null, error: "Day interval cannot exceed 365" };
+  }
+  if (unit === "months" && interval > 60) {
+    return { recurrenceInterval: null, recurrenceUnit: null, error: "Month interval cannot exceed 60" };
+  }
+
+  return { recurrenceInterval: interval, recurrenceUnit: unit };
 }
 
 export async function createGoal(
@@ -39,6 +78,7 @@ export async function createGoal(
   const scheduledTime = (formData.get("scheduled_time") as string) || null;
   const rawDays = formData.get("recurring_days") as string | null;
   const recurringDays = parseRecurringDays(rawDays);
+  const { recurrenceInterval, recurrenceUnit, error: intervalError } = parseIntervalFields(formData);
 
   if (!title || title.trim().length === 0) {
     return { error: "Title is required", success: false };
@@ -46,6 +86,14 @@ export async function createGoal(
 
   if (!["easy", "medium", "hard"].includes(difficulty)) {
     return { error: "Invalid difficulty", success: false };
+  }
+
+  if (intervalError) {
+    return { error: intervalError, success: false };
+  }
+
+  if (recurringDays && recurrenceInterval) {
+    return { error: "Cannot mix weekly and interval recurrence", success: false };
   }
 
   const currencyReward = DIFFICULTY_REWARDS[difficulty as Difficulty];
@@ -65,11 +113,25 @@ export async function createGoal(
     payload.scheduled_date = null;
     payload.completed_at = null;
     payload.last_completed_date = null;
+    payload.recurrence_interval = null;
+    payload.recurrence_unit = null;
+    payload.last_completed_at = null;
+  } else if (recurrenceInterval) {
+    payload.recurring_days = null;
+    payload.scheduled_date = null;
+    payload.completed_at = null;
+    payload.last_completed_date = null;
+    payload.recurrence_interval = recurrenceInterval;
+    payload.recurrence_unit = recurrenceUnit;
+    payload.last_completed_at = null;
   } else {
     const scheduledDate = (formData.get("scheduled_date") as string) || null;
     payload.recurring_days = null;
     payload.last_completed_date = null;
     payload.scheduled_date = scheduledDate || null;
+    payload.recurrence_interval = null;
+    payload.recurrence_unit = null;
+    payload.last_completed_at = null;
   }
 
   const { error } = await supabase.from("goals").insert(payload);
@@ -93,10 +155,9 @@ export async function completeGoal(goalId: string): Promise<ActionState> {
     return { error: "Not authenticated" };
   }
 
-  // Fetch the goal to get the reward amount and verify ownership.
   const { data: goal, error: fetchError } = await supabase
     .from("goals")
-    .select("currency_reward, completed_at, recurring_days, last_completed_date")
+    .select("currency_reward, completed_at, recurring_days, last_completed_date, recurrence_interval, recurrence_unit, last_completed_at")
     .eq("id", goalId)
     .eq("user_id", user.id)
     .single();
@@ -105,7 +166,6 @@ export async function completeGoal(goalId: string): Promise<ActionState> {
     return { error: "Goal not found" };
   }
 
-  // Fetch user timezone for today's date calculation
   const { data: profile } = await supabase
     .from("profiles")
     .select("current_streak, longest_streak, last_active_date, timezone")
@@ -117,9 +177,21 @@ export async function completeGoal(goalId: string): Promise<ActionState> {
 
   let rewarded = false;
 
-  if (goal.recurring_days) {
-    // Recurring goal: use last_completed_date to track "completed today"
-    // Must explicitly allow NULL rows through (NULL != x evaluates to NULL, not TRUE)
+  if (goal.recurrence_interval !== null && goal.recurrence_unit !== null) {
+    // Interval goal: check it's actually due before allowing completion
+    if (!getIsDue({ recurrence_interval: goal.recurrence_interval, recurrence_unit: goal.recurrence_unit, last_completed_at: goal.last_completed_at }, timezone)) {
+      return { error: "Goal is not due yet" };
+    }
+
+    const { count } = await supabase
+      .from("goals")
+      .update({ last_completed_at: new Date().toISOString() }, { count: "exact" })
+      .eq("id", goalId)
+      .eq("user_id", user.id);
+
+    if (!count) return { error: null };
+    rewarded = true;
+  } else if (goal.recurring_days !== null) {
     const { count } = await supabase
       .from("goals")
       .update({ last_completed_date: today }, { count: "exact" })
@@ -127,10 +199,9 @@ export async function completeGoal(goalId: string): Promise<ActionState> {
       .eq("user_id", user.id)
       .or(`last_completed_date.is.null,last_completed_date.neq.${today}`);
 
-    if (!count) return { error: null }; // already completed today — skip reward
+    if (!count) return { error: null };
     rewarded = true;
   } else {
-    // One-time goal: use completed_at
     if (goal.completed_at !== null) {
       return { error: "Goal is already completed" };
     }
@@ -148,7 +219,6 @@ export async function completeGoal(goalId: string): Promise<ActionState> {
 
   if (!rewarded) return { error: null };
 
-  // Run currency insert and profile fetch in parallel
   const [{ error: txError }] = await Promise.all([
     supabase.from("currency_transactions").insert({
       user_id: user.id,
@@ -206,6 +276,7 @@ export async function updateGoal(
   const scheduledTime = (formData.get("scheduled_time") as string) || null;
   const rawDays = formData.get("recurring_days") as string | null;
   const recurringDays = parseRecurringDays(rawDays);
+  const { recurrenceInterval, recurrenceUnit, error: intervalError } = parseIntervalFields(formData);
 
   if (!title || title.trim().length === 0) {
     return { error: "Title is required" };
@@ -213,6 +284,14 @@ export async function updateGoal(
 
   if (!["easy", "medium", "hard"].includes(difficulty)) {
     return { error: "Invalid difficulty" };
+  }
+
+  if (intervalError) {
+    return { error: intervalError };
+  }
+
+  if (recurringDays && recurrenceInterval) {
+    return { error: "Cannot mix weekly and interval recurrence" };
   }
 
   const currencyReward = DIFFICULTY_REWARDS[difficulty as Difficulty];
@@ -231,11 +310,25 @@ export async function updateGoal(
     payload.scheduled_date = null;
     payload.completed_at = null;
     payload.last_completed_date = null;
+    payload.recurrence_interval = null;
+    payload.recurrence_unit = null;
+    payload.last_completed_at = null;
+  } else if (recurrenceInterval) {
+    payload.recurring_days = null;
+    payload.scheduled_date = null;
+    payload.completed_at = null;
+    payload.last_completed_date = null;
+    payload.recurrence_interval = recurrenceInterval;
+    payload.recurrence_unit = recurrenceUnit;
+    payload.last_completed_at = null;
   } else {
     const scheduledDate = (formData.get("scheduled_date") as string) || null;
     payload.recurring_days = null;
     payload.last_completed_date = null;
     payload.scheduled_date = scheduledDate || null;
+    payload.recurrence_interval = null;
+    payload.recurrence_unit = null;
+    payload.last_completed_at = null;
   }
 
   const { error } = await supabase
@@ -266,7 +359,7 @@ export async function deleteGoal(goalId: string): Promise<ActionState> {
 
   const { data: goal, error: fetchError } = await supabase
     .from("goals")
-    .select("completed_at, recurring_days")
+    .select("completed_at, recurring_days, recurrence_interval")
     .eq("id", goalId)
     .eq("user_id", user.id)
     .single();
@@ -275,7 +368,8 @@ export async function deleteGoal(goalId: string): Promise<ActionState> {
     return { error: "Goal not found" };
   }
 
-  if (!goal.recurring_days && goal.completed_at !== null) {
+  // Only block deletion for completed one-time goals
+  if (!goal.recurring_days && !goal.recurrence_interval && goal.completed_at !== null) {
     return { error: "Completed goals cannot be deleted" };
   }
 

@@ -8,6 +8,8 @@ import { formatCurrency } from "@/lib/currency";
 import { formatTime } from "@/lib/date";
 import { formatRecurringDays } from "@/lib/goals";
 import type { Goal } from "@/types";
+import { isIntervalGoal, isRecurringGoal } from "@/types";
+import { getIsDue } from "@/lib/streak";
 import { Badge, Card, FluentEmoji, IconButton } from "@/components/ui";
 import { EMOJI } from "@/lib/emoji";
 import { cn } from "@/lib/utils";
@@ -20,6 +22,7 @@ export function GoalCard({
   detailsFrom,
   actions = "full",
   today = "",
+  timezone = "UTC",
   index,
 }: {
   goal: Goal;
@@ -27,6 +30,7 @@ export function GoalCard({
   detailsFrom?: "home" | "goals" | "me";
   actions?: GoalCardActions;
   today?: string;
+  timezone?: string;
   index?: number;
 }) {
   const [isPending, startTransition] = useTransition();
@@ -52,9 +56,13 @@ export function GoalCard({
     ? `/goals/${goal.id}/view?from=${detailsFrom}`
     : `/goals/${goal.id}/view`;
 
-  const isCompleted = goal.recurring_days
+  const isCompleted = isIntervalGoal(goal)
+    ? false // interval goals are never permanently done
+    : isRecurringGoal(goal)
     ? goal.last_completed_date === today
     : goal.completed_at !== null;
+
+  const isOverdue = isIntervalGoal(goal) && goal.last_completed_at !== null && getIsDue(goal, timezone);
 
   const bloomColor =
     goal.difficulty === "hard"
@@ -89,6 +97,10 @@ export function GoalCard({
 
     startTransition(async () => {
       await completeGoal(goal.id);
+      // Interval goals reset — they'll come back when due again
+      if (isIntervalGoal(goal)) {
+        setTimeout(() => setJustCompleted(false), 1500);
+      }
     });
   }
 
@@ -168,10 +180,20 @@ export function GoalCard({
             </span>
           ) : null}
 
-          {goal.recurring_days && goal.recurring_days.length > 0 ? (
+          {isRecurringGoal(goal) ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-tiny text-neutral-500">
               <ArrowsClockwise size={12} weight="regular" />
               {formatRecurringDays(goal.recurring_days)}
+            </span>
+          ) : isIntervalGoal(goal) ? (
+            <span className={cn(
+              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-tiny",
+              isOverdue
+                ? "bg-warning-50 text-warning-700"
+                : "bg-neutral-100 text-neutral-500"
+            )}>
+              <ArrowsClockwise size={12} weight="regular" />
+              {`Every ${goal.recurrence_interval} ${goal.recurrence_unit}`}
             </span>
           ) : null}
 

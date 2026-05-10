@@ -20,7 +20,7 @@ export default async function GoalsPage() {
   const doneData = perf("[server] /goals query");
   const { data } = await supabase
     .from("goals")
-    .select("id, title, emoji, scheduled_date, completed_at, difficulty, currency_reward, description, scheduled_time, recurring_days, last_completed_date")
+    .select("id, title, emoji, scheduled_date, completed_at, difficulty, currency_reward, description, scheduled_time, recurring_days, last_completed_date, recurrence_interval, recurrence_unit, last_completed_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(100);
@@ -37,9 +37,9 @@ export default async function GoalsPage() {
   const today = getToday(timezone);
 
   const goals = (data as Goal[]) ?? [];
-  // Recurring goals never appear in the completed section — they stay active permanently
-  const activeGoals = goals.filter((g) => g.recurring_days !== null || g.completed_at === null);
-  const completedGoals = goals.filter((g) => g.recurring_days === null && g.completed_at !== null);
+  // Recurring and interval goals stay active permanently; only one-time completed goals go to the completed section
+  const activeGoals = goals.filter((g) => g.recurring_days !== null || g.recurrence_interval !== null || g.completed_at === null);
+  const completedGoals = goals.filter((g) => g.recurring_days === null && g.recurrence_interval === null && g.completed_at !== null);
 
   return (
     <div className="space-y-6">
@@ -63,6 +63,7 @@ export default async function GoalsPage() {
             goals={activeGoals}
             today={today}
             todayDow={new Date(new Date().toLocaleString("en-US", { timeZone: timezone })).getDay()}
+            timezone={timezone}
           />
           <CompletedSection goals={completedGoals} />
         </>
