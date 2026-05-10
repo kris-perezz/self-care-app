@@ -112,6 +112,7 @@ export function NotificationPanel({
   const [isSubscribed, setIsSubscribed] = useState(
     hasSubscription && (s?.enabled ?? false)
   );
+  const [togglePending, setTogglePending] = useState(false);
   const [subscribeError, setSubscribeError] = useState<string | null>(null);
   const [isSubscribing, startSubscribeTransition] = useTransition();
   const [standalone, setStandalone] = useState(false);
@@ -137,23 +138,28 @@ export function NotificationPanel({
 
   async function handleEnable() {
     setSubscribeError(null);
+    setTogglePending(true);
     if (!("Notification" in window)) {
       setSubscribeError("Notifications are not supported in this browser.");
+      setTogglePending(false);
       return;
     }
     if (!standalone) {
       setSubscribeError(
         'On iPhone/iPad, tap the share icon in Safari and choose "Add to Home Screen" first, then enable notifications.'
       );
+      setTogglePending(false);
       return;
     }
     const permission = await Notification.requestPermission();
     if (permission !== "granted") {
       setSubscribeError("Permission denied. Enable notifications in your device settings.");
+      setTogglePending(false);
       return;
     }
     if (!VAPID_PUBLIC_KEY) {
-      setSubscribeError("Push notifications are not configured yet.");
+      setSubscribeError("Push notifications are not configured yet (missing VAPID key).");
+      setTogglePending(false);
       return;
     }
     startSubscribeTransition(async () => {
@@ -162,15 +168,18 @@ export function NotificationPanel({
         if (!subscription) throw new Error("Subscription failed");
         const json = subscription.toJSON() as { endpoint: string; keys: { p256dh: string; auth: string } };
         const result = await savePushSubscription(json);
-        if (result.error) { setSubscribeError(result.error); return; }
+        if (result.error) { setSubscribeError(result.error); setTogglePending(false); return; }
         setIsSubscribed(true);
       } catch (e) {
         setSubscribeError(e instanceof Error ? e.message : "Failed to enable notifications");
+      } finally {
+        setTogglePending(false);
       }
     });
   }
 
   async function handleDisable() {
+    setTogglePending(true);
     startSubscribeTransition(async () => {
       try {
         const existing = await getExistingSubscription();
@@ -181,6 +190,8 @@ export function NotificationPanel({
         setIsSubscribed(false);
       } catch {
         setSubscribeError("Failed to disable notifications.");
+      } finally {
+        setTogglePending(false);
       }
     });
   }
@@ -207,16 +218,22 @@ export function NotificationPanel({
             role="switch"
             aria-checked={isSubscribed}
             onClick={isSubscribed ? handleDisable : handleEnable}
-            disabled={isSubscribing}
+            disabled={togglePending || isSubscribing}
             className={`relative h-6 w-10 shrink-0 rounded-full transition-colors duration-200 disabled:opacity-60 ${
               isSubscribed ? "bg-primary-500" : "bg-neutral-200"
             }`}
           >
-            <span
-              className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${
-                isSubscribed ? "translate-x-4" : "translate-x-0.5"
-              }`}
-            />
+            {togglePending || isSubscribing ? (
+              <span className="absolute inset-0 flex items-center justify-center">
+                <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              </span>
+            ) : (
+              <span
+                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${
+                  isSubscribed ? "translate-x-4" : "translate-x-0.5"
+                }`}
+              />
+            )}
           </button>
         </div>
 
