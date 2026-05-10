@@ -97,6 +97,7 @@ export async function createGoal(
   }
 
   const currencyReward = DIFFICULTY_REWARDS[difficulty as Difficulty];
+  const preDueRemindersEnabled = formData.get("pre_due_reminders_enabled") === "true";
 
   const payload: Record<string, unknown> = {
     user_id: user.id,
@@ -106,6 +107,7 @@ export async function createGoal(
     emoji,
     currency_reward: currencyReward,
     scheduled_time: scheduledTime || null,
+    pre_due_reminders_enabled: preDueRemindersEnabled,
   };
 
   if (recurringDays) {
@@ -295,6 +297,7 @@ export async function updateGoal(
   }
 
   const currencyReward = DIFFICULTY_REWARDS[difficulty as Difficulty];
+  const preDueRemindersEnabled = formData.get("pre_due_reminders_enabled") === "true";
 
   const payload: Record<string, unknown> = {
     title: title.trim(),
@@ -303,6 +306,7 @@ export async function updateGoal(
     emoji,
     currency_reward: currencyReward,
     scheduled_time: scheduledTime || null,
+    pre_due_reminders_enabled: preDueRemindersEnabled,
   };
 
   if (recurringDays) {

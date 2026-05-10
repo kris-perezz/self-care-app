@@ -43,6 +43,7 @@ export function EditGoalForm({ goal, backHref = "/goals" }: { goal: Goal; backHr
   const [intervalUnit, setIntervalUnit] = useState<"hours" | "days" | "months">(
     goal.recurrence_unit ?? "days"
   );
+  const [preDueReminders, setPreDueReminders] = useState(goal.pre_due_reminders_enabled ?? false);
 
   useEffect(() => {
     if (state.success) {
@@ -194,6 +195,34 @@ export function EditGoalForm({ goal, backHref = "/goals" }: { goal: Goal; backHr
               />
             </Field>
           </>
+        )}
+
+        {/* Pre-due reminders: only meaningful when a scheduled_time is set */}
+        {scheduledTime && (
+          <Field label="Pre-due reminders">
+            <input type="hidden" name="pre_due_reminders_enabled" value={String(preDueReminders)} />
+            <div className="mt-2 flex items-center justify-between gap-3 rounded-2xl border-2 border-neutral-100 bg-neutral-50 px-4 py-3">
+              <div>
+                <p className="text-small text-neutral-900">Remind me before this goal</p>
+                <p className="text-tiny text-neutral-500">Sends alerts at 1h, 30m, and 15m before</p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={preDueReminders}
+                onClick={() => setPreDueReminders((v) => !v)}
+                className={`relative h-6 w-10 shrink-0 rounded-full transition-colors duration-200 ${
+                  preDueReminders ? "bg-primary-500" : "bg-neutral-200"
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${
+                    preDueReminders ? "translate-x-4" : "translate-x-0.5"
+                  }`}
+                />
+              </button>
+            </div>
+          </Field>
         )}
 
         <Button type="submit" disabled={isPending} className="w-full">

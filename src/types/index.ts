@@ -14,7 +14,24 @@ export interface Goal {
   recurrence_interval: number | null;
   recurrence_unit: "hours" | "days" | "months" | null;
   last_completed_at: string | null;
+  pre_due_reminders_enabled: boolean;
   created_at: string;
+}
+
+export interface NotificationSettings {
+  user_id: string;
+  enabled: boolean;
+  daily_summary_enabled: boolean;
+  daily_summary_time: string;
+  at_time_reminders_enabled: boolean;
+  overdue_reminders_enabled: boolean;
+  streak_at_risk_enabled: boolean;
+  streak_at_risk_time: string;
+  reflection_reminder_enabled: boolean;
+  reflection_reminder_time: string;
+  mood_reminder_enabled: boolean;
+  mood_reminder_time: string;
+  updated_at: string;
 }
 
 export function isIntervalGoal(
