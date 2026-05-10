@@ -14,3 +14,4 @@ export * from "./nav-tab-item";
 export * from "./fluent-emoji";
 export * from "./emoji-picker";
 export * from "./modal";
+export * from "./toggle";

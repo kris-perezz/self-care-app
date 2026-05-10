@@ -134,6 +134,7 @@ export async function deletePushSubscription(
   return { error: null };
 }
 
+
 export type NotifSettingsState = { error: string | null; success: boolean };
 
 function parseTime(raw: unknown, fallback: string): string {

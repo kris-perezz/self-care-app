@@ -12,6 +12,7 @@ import {
   Field,
   Textarea,
   Input,
+  Toggle,
 } from "@/components/ui";
 import { isIntervalGoal } from "@/types";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -206,21 +207,11 @@ export function EditGoalForm({ goal, backHref = "/goals" }: { goal: Goal; backHr
                 <p className="text-small text-neutral-900">Remind me before this goal</p>
                 <p className="text-tiny text-neutral-500">Sends alerts at 1h, 30m, and 15m before</p>
               </div>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={preDueReminders}
-                onClick={() => setPreDueReminders((v) => !v)}
-                className={`relative h-6 w-10 shrink-0 rounded-full transition-colors duration-200 ${
-                  preDueReminders ? "bg-primary-500" : "bg-neutral-200"
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${
-                    preDueReminders ? "translate-x-4" : "translate-x-0.5"
-                  }`}
-                />
-              </button>
+              <Toggle
+                checked={preDueReminders}
+                onChange={setPreDueReminders}
+                aria-label="Pre-due reminders"
+              />
             </div>
           </Field>
         )}
