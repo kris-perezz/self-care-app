@@ -26,6 +26,7 @@ const DEFAULTS: Omit<NotificationSettings, "user_id" | "enabled" | "updated_at">
   daily_summary_time: "08:00",
   at_time_reminders_enabled: true,
   overdue_reminders_enabled: true,
+  pre_due_reminders_enabled: false,
   streak_at_risk_enabled: true,
   streak_at_risk_time: "21:00",
   reflection_reminder_enabled: true,
@@ -96,6 +97,7 @@ export function NotificationPanel({
   const [dailySummaryTime, setDailySummaryTime] = useState<string | null>(s?.daily_summary_time ?? DEFAULTS.daily_summary_time);
   const [atTime, setAtTime] = useState(s?.at_time_reminders_enabled ?? DEFAULTS.at_time_reminders_enabled);
   const [overdue, setOverdue] = useState(s?.overdue_reminders_enabled ?? DEFAULTS.overdue_reminders_enabled);
+  const [preDue, setPreDue] = useState(s?.pre_due_reminders_enabled ?? DEFAULTS.pre_due_reminders_enabled);
   const [streakRisk, setStreakRisk] = useState(s?.streak_at_risk_enabled ?? DEFAULTS.streak_at_risk_enabled);
   const [streakRiskTime, setStreakRiskTime] = useState<string | null>(s?.streak_at_risk_time ?? DEFAULTS.streak_at_risk_time);
   const [reflection, setReflection] = useState(s?.reflection_reminder_enabled ?? DEFAULTS.reflection_reminder_enabled);
@@ -221,6 +223,7 @@ export function NotificationPanel({
           <p className="text-tiny font-medium uppercase tracking-wide text-neutral-400">Goals</p>
           <SettingsRow name="at_time_reminders_enabled" checked={atTime} onChange={setAtTime} label="At-time reminders" />
           <SettingsRow name="overdue_reminders_enabled" checked={overdue} onChange={setOverdue} label="Overdue reminders" />
+          <SettingsRow name="pre_due_reminders_enabled" checked={preDue} onChange={setPreDue} label="Alert before due" />
 
           <p className="pt-1 text-tiny font-medium uppercase tracking-wide text-neutral-400">Daily</p>
           <SettingsRow name="daily_summary_enabled" checked={dailySummary} onChange={setDailySummary} label="Daily summary" timeName="daily_summary_time" timeValue={dailySummaryTime} onTimeChange={setDailySummaryTime} />

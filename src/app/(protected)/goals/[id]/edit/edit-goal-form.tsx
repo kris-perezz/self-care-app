@@ -12,7 +12,6 @@ import {
   Field,
   Textarea,
   Input,
-  Toggle,
 } from "@/components/ui";
 import { isIntervalGoal } from "@/types";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -44,8 +43,6 @@ export function EditGoalForm({ goal, backHref = "/goals" }: { goal: Goal; backHr
   const [intervalUnit, setIntervalUnit] = useState<"hours" | "days" | "months">(
     goal.recurrence_unit ?? "days"
   );
-  const [preDueReminders, setPreDueReminders] = useState(goal.pre_due_reminders_enabled ?? false);
-
   useEffect(() => {
     if (state.success) {
       router.push(backHref);
@@ -196,24 +193,6 @@ export function EditGoalForm({ goal, backHref = "/goals" }: { goal: Goal; backHr
               />
             </Field>
           </>
-        )}
-
-        {/* Pre-due reminders: only meaningful when a scheduled_time is set */}
-        {scheduledTime && (
-          <Field label="Pre-due reminders">
-            <input type="hidden" name="pre_due_reminders_enabled" value={String(preDueReminders)} />
-            <div className="mt-2 flex items-center justify-between gap-3 rounded-2xl border-2 border-neutral-100 bg-neutral-50 px-4 py-3">
-              <div>
-                <p className="text-small text-neutral-900">Remind me before this goal</p>
-                <p className="text-tiny text-neutral-500">Sends alerts at 1h, 30m, and 15m before</p>
-              </div>
-              <Toggle
-                checked={preDueReminders}
-                onChange={setPreDueReminders}
-                aria-label="Pre-due reminders"
-              />
-            </div>
-          </Field>
         )}
 
         <Button type="submit" disabled={isPending} className="w-full">

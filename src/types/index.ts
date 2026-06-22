@@ -25,6 +25,7 @@ export interface NotificationSettings {
   daily_summary_time: string;
   at_time_reminders_enabled: boolean;
   overdue_reminders_enabled: boolean;
+  pre_due_reminders_enabled: boolean;
   streak_at_risk_enabled: boolean;
   streak_at_risk_time: string;
   reflection_reminder_enabled: boolean;

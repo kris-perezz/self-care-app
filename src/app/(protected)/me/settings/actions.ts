@@ -159,6 +159,7 @@ export async function saveNotificationSettings(
     daily_summary_time: parseTime(formData.get("daily_summary_time"), "08:00"),
     at_time_reminders_enabled: bool("at_time_reminders_enabled"),
     overdue_reminders_enabled: bool("overdue_reminders_enabled"),
+    pre_due_reminders_enabled: bool("pre_due_reminders_enabled"),
     streak_at_risk_enabled: bool("streak_at_risk_enabled"),
     streak_at_risk_time: parseTime(formData.get("streak_at_risk_time"), "21:00"),
     reflection_reminder_enabled: bool("reflection_reminder_enabled"),
