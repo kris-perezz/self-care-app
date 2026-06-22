@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { updateProfile, type SettingsActionState } from "./actions";
 import type { UserProfile } from "@/types";
 import { Button, Card, Field, Input, Select } from "@/components/ui";
@@ -58,6 +58,21 @@ export function SettingsForm({ profile }: { profile: UserProfile }) {
     initialState
   );
 
+  const [displayName, setDisplayName] = useState(profile.display_name ?? "");
+  const [timezone, setTimezone] = useState(profile.timezone);
+  const [savedDisplayName, setSavedDisplayName] = useState(profile.display_name ?? "");
+  const [savedTimezone, setSavedTimezone] = useState(profile.timezone);
+
+  useEffect(() => {
+    if (state.success) {
+      setSavedDisplayName(displayName);
+      setSavedTimezone(timezone);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.success]);
+
+  const isDirty = displayName !== savedDisplayName || timezone !== savedTimezone;
+
   return (
     <form action={formAction} className="space-y-4">
       {state.error && (
@@ -85,7 +100,8 @@ export function SettingsForm({ profile }: { profile: UserProfile }) {
           id="display_name"
           name="display_name"
           type="text"
-          defaultValue={profile.display_name ?? ""}
+          value={displayName}
+          onChange={(e) => setDisplayName(e.target.value)}
           maxLength={50}
           placeholder="What should we call you?"
         />
@@ -96,7 +112,8 @@ export function SettingsForm({ profile }: { profile: UserProfile }) {
         <Select
           id="timezone"
           name="timezone"
-          defaultValue={profile.timezone}
+          value={timezone}
+          onChange={(e) => setTimezone(e.target.value)}
         >
           {TIMEZONE_OPTIONS.map((group) => (
             <optgroup key={group.group} label={group.group}>
@@ -110,13 +127,15 @@ export function SettingsForm({ profile }: { profile: UserProfile }) {
         </Select>
       </Field>
 
-      <Button
-        type="submit"
-        disabled={isPending}
-        className="w-full"
-      >
-        {isPending ? "Saving..." : "Save Changes"}
-      </Button>
+      {isDirty && (
+        <Button
+          type="submit"
+          disabled={isPending}
+          className="w-full"
+        >
+          {isPending ? "Saving..." : "Save Changes"}
+        </Button>
+      )}
     </form>
   );
 }

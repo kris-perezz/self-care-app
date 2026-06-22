@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState, useTransition } from "react";
+import { useActionState, useEffect, useMemo, useState, useTransition } from "react";
 import {
   savePushSubscription,
   deletePushSubscription,
@@ -106,6 +106,55 @@ export function NotificationPanel({
   const [moodTime, setMoodTime] = useState<string | null>(s?.mood_reminder_time ?? DEFAULTS.mood_reminder_time);
 
   const [formState, formAction, isFormPending] = useActionState(saveNotificationSettings, initialFormState);
+
+  const savedRef = useMemo(() => ({
+    dailySummary: s?.daily_summary_enabled ?? DEFAULTS.daily_summary_enabled,
+    dailySummaryTime: s?.daily_summary_time ?? DEFAULTS.daily_summary_time,
+    atTime: s?.at_time_reminders_enabled ?? DEFAULTS.at_time_reminders_enabled,
+    overdue: s?.overdue_reminders_enabled ?? DEFAULTS.overdue_reminders_enabled,
+    preDue: s?.pre_due_reminders_enabled ?? DEFAULTS.pre_due_reminders_enabled,
+    streakRisk: s?.streak_at_risk_enabled ?? DEFAULTS.streak_at_risk_enabled,
+    streakRiskTime: s?.streak_at_risk_time ?? DEFAULTS.streak_at_risk_time,
+    reflection: s?.reflection_reminder_enabled ?? DEFAULTS.reflection_reminder_enabled,
+    reflectionTime: s?.reflection_reminder_time ?? DEFAULTS.reflection_reminder_time,
+    mood: s?.mood_reminder_enabled ?? DEFAULTS.mood_reminder_enabled,
+    moodTime: s?.mood_reminder_time ?? DEFAULTS.mood_reminder_time,
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), []);
+
+  const [savedSnapshot, setSavedSnapshot] = useState(savedRef);
+
+  useEffect(() => {
+    if (formState.success) {
+      setSavedSnapshot({
+        dailySummary,
+        dailySummaryTime: dailySummaryTime ?? DEFAULTS.daily_summary_time,
+        atTime,
+        overdue,
+        preDue,
+        streakRisk,
+        streakRiskTime: streakRiskTime ?? DEFAULTS.streak_at_risk_time,
+        reflection,
+        reflectionTime: reflectionTime ?? DEFAULTS.reflection_reminder_time,
+        mood,
+        moodTime: moodTime ?? DEFAULTS.mood_reminder_time,
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formState.success]);
+
+  const isFormDirty =
+    dailySummary !== savedSnapshot.dailySummary ||
+    dailySummaryTime !== savedSnapshot.dailySummaryTime ||
+    atTime !== savedSnapshot.atTime ||
+    overdue !== savedSnapshot.overdue ||
+    preDue !== savedSnapshot.preDue ||
+    streakRisk !== savedSnapshot.streakRisk ||
+    streakRiskTime !== savedSnapshot.streakRiskTime ||
+    reflection !== savedSnapshot.reflection ||
+    reflectionTime !== savedSnapshot.reflectionTime ||
+    mood !== savedSnapshot.mood ||
+    moodTime !== savedSnapshot.moodTime;
 
   async function handleEnable() {
     setSubscribeError(null);
@@ -233,9 +282,11 @@ export function NotificationPanel({
           <SettingsRow name="reflection_reminder_enabled" checked={reflection} onChange={setReflection} label="Reflection reminder" timeName="reflection_reminder_time" timeValue={reflectionTime} onTimeChange={setReflectionTime} />
           <SettingsRow name="mood_reminder_enabled" checked={mood} onChange={setMood} label="Mood check-in reminder" timeName="mood_reminder_time" timeValue={moodTime} onTimeChange={setMoodTime} />
 
-          <Button type="submit" disabled={isFormPending} className="w-full">
-            {isFormPending ? "Saving..." : "Save Notification Settings"}
-          </Button>
+          {isFormDirty && (
+            <Button type="submit" disabled={isFormPending} className="w-full">
+              {isFormPending ? "Saving..." : "Save Notification Settings"}
+            </Button>
+          )}
         </form>
       )}
     </div>
