@@ -11,26 +11,24 @@ function pad(n: number): string {
   return String(n).padStart(2, "0");
 }
 
-// Rounds "HH:MM" down to the nearest 15-min bucket → "HH:00/15/30/45"
+// Normalises "HH:MM" (strips seconds if present) → "HH:MM"
 function toWindowTime(timeStr: string): string {
   const [h, m] = timeStr.split(":").map(Number);
-  return `${pad(h)}:${pad(Math.floor(m / 15) * 15)}`;
+  return `${pad(h)}:${pad(m)}`;
 }
 
-// The first 15-min window that starts AFTER a given "HH:MM" time
+// The exact minute AFTER a given "HH:MM" time
 function nextWindowAfterTime(timeStr: string): string {
   const [h, m] = timeStr.split(":").map(Number);
-  const nextMin = Math.ceil((h * 60 + m + 1) / 15) * 15;
-  const adjMin = nextMin % 1440;
-  return `${pad(Math.floor(adjMin / 60))}:${pad(adjMin % 60)}`;
+  const nextMin = (h * 60 + m + 1) % 1440;
+  return `${pad(Math.floor(nextMin / 60))}:${pad(nextMin % 60)}`;
 }
 
-// The 15-min window that contains (scheduledTime - offsetMinutes)
+// The exact minute at (scheduledTime - offsetMinutes)
 function preDueWindowTime(scheduledTime: string, offsetMinutes: number): string {
   const [h, m] = scheduledTime.split(":").map(Number);
   const totalMin = ((h * 60 + m - offsetMinutes) + 1440) % 1440;
-  const windowM = Math.floor((totalMin % 60) / 15) * 15;
-  return `${pad(Math.floor(totalMin / 60))}:${pad(windowM)}`;
+  return `${pad(Math.floor(totalMin / 60))}:${pad(totalMin % 60)}`;
 }
 
 function isDue(goal: {
@@ -107,6 +105,7 @@ async function logSent(
 interface QueuedNotification {
   type: string;
   referenceId: string;
+  dedupKey: string;
   title: string;
   body: string;
   url: string;
@@ -125,8 +124,7 @@ Deno.serve(async () => {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
   const now = new Date();
-  const windowMinBase = Math.floor(now.getUTCMinutes() / 15) * 15;
-  const windowKey = `${now.getUTCFullYear()}-${pad(now.getUTCMonth() + 1)}-${pad(now.getUTCDate())}:${pad(now.getUTCHours())}:${pad(windowMinBase)}`;
+  const windowKey = `${now.getUTCFullYear()}-${pad(now.getUTCMonth() + 1)}-${pad(now.getUTCDate())}:${pad(now.getUTCHours())}:${pad(now.getUTCMinutes())}`;
 
   const { data: settingsRows } = await supabase
     .from("notification_settings")
@@ -161,8 +159,7 @@ Deno.serve(async () => {
     const timezone = profile.timezone ?? "UTC";
     const localNow = new Date(now.toLocaleString("en-US", { timeZone: timezone }));
     const localDateStr = now.toLocaleDateString("en-CA", { timeZone: timezone });
-    const localWindowMin = Math.floor(localNow.getMinutes() / 15) * 15;
-    const localWindowTime = `${pad(localNow.getHours())}:${pad(localWindowMin)}`;
+    const localWindowTime = `${pad(localNow.getHours())}:${pad(localNow.getMinutes())}`;
 
     const notifications: QueuedNotification[] = [];
 
@@ -179,6 +176,7 @@ Deno.serve(async () => {
           notifications.push({
             type: "daily_summary",
             referenceId: localDateStr,
+            dedupKey: windowKey,
             title: "Your day, planned",
             body: `${incomplete} goal${incomplete !== 1 ? "s" : ""} waiting for you today.`,
             url: "/goals",
@@ -204,6 +202,7 @@ Deno.serve(async () => {
               notifications.push({
                 type: "at_time",
                 referenceId: refId,
+                dedupKey: windowKey,
                 title: `Time for: ${goal.title}`,
                 body: "This goal is scheduled for right now.",
                 url: "/goals",
@@ -222,6 +221,7 @@ Deno.serve(async () => {
                 notifications.push({
                   type: "pre_due",
                   referenceId: refId,
+                  dedupKey: windowKey,
                   title: `Coming up: ${goal.title}`,
                   body: `Due in ${label}.`,
                   url: "/goals",
@@ -240,6 +240,7 @@ Deno.serve(async () => {
                 notifications.push({
                   type: "overdue",
                   referenceId: refId,
+                  dedupKey: windowKey,
                   title: `Overdue: ${goal.title}`,
                   body: "This goal is past its scheduled time.",
                   url: "/goals",
@@ -248,14 +249,17 @@ Deno.serve(async () => {
             }
           }
 
-          // Interval goals: fire once per day when due
+          // Interval goals: fire once per day when due.
+          // Uses localDateStr as the dedup key (not the per-minute windowKey) so
+          // the notification isn't re-sent on every subsequent cron tick that day.
           if (goal.recurrence_interval !== null && goal.recurrence_unit !== null) {
             if (isDue({ recurrence_interval: goal.recurrence_interval, recurrence_unit: goal.recurrence_unit, last_completed_at: goal.last_completed_at })) {
               const refId = `${goal.id}:${localDateStr}:overdue`;
-              if (!(await alreadySent(supabase, settings.user_id, "overdue", refId, windowKey))) {
+              if (!(await alreadySent(supabase, settings.user_id, "overdue", refId, localDateStr))) {
                 notifications.push({
                   type: "overdue",
                   referenceId: refId,
+                  dedupKey: localDateStr,
                   title: `Due now: ${goal.title}`,
                   body: `Every ${goal.recurrence_interval} ${goal.recurrence_unit} — time to complete it!`,
                   url: "/goals",
@@ -278,6 +282,7 @@ Deno.serve(async () => {
         notifications.push({
           type: "streak_at_risk",
           referenceId: localDateStr,
+          dedupKey: windowKey,
           title: "Your streak is at risk!",
           body: `${profile.current_streak}-day streak — complete a goal before midnight to keep it going!`,
           url: "/goals",
@@ -301,6 +306,7 @@ Deno.serve(async () => {
           notifications.push({
             type: "reflection",
             referenceId: localDateStr,
+            dedupKey: windowKey,
             title: "Time to reflect",
             body: "Take a moment to write about your day.",
             url: "/reflect",
@@ -325,6 +331,7 @@ Deno.serve(async () => {
           notifications.push({
             type: "mood",
             referenceId: localDateStr,
+            dedupKey: windowKey,
             title: "How are you feeling?",
             body: "Log your mood for today.",
             url: "/reflect",
@@ -357,10 +364,11 @@ Deno.serve(async () => {
         }
       }
 
-      await logSent(supabase, settings.user_id, notif.type, notif.referenceId, windowKey);
+      await logSent(supabase, settings.user_id, notif.type, notif.referenceId, notif.dedupKey);
     }
   }
 
+  console.log(JSON.stringify({ sent: totalSent, window: windowKey, settingsCount: settingsRows.length }));
   return new Response(JSON.stringify({ sent: totalSent, window: windowKey }), {
     status: 200,
     headers: { "Content-Type": "application/json" },

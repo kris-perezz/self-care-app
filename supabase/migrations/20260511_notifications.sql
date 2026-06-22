@@ -69,10 +69,10 @@ CREATE POLICY "Users read own notification log" ON public.notification_log
 --    ALTER DATABASE postgres SET app.supabase_url TO 'https://YOUR_PROJECT_ID.supabase.co';
 --    ALTER DATABASE postgres SET app.service_role_key TO 'YOUR_SERVICE_ROLE_KEY';
 --
--- 4. Schedule the notification job (every 15 minutes):
+-- 4. Schedule the notification job (every minute for exact-time delivery):
 --    SELECT cron.schedule(
 --      'send-himo-notifications',
---      '*/15 * * * *',
+--      '* * * * *',
 --      $$
 --        SELECT net.http_post(
 --          url:=current_setting('app.supabase_url') || '/functions/v1/send-notifications',
@@ -90,4 +90,11 @@ CREATE POLICY "Users read own notification log" ON public.notification_log
 --      'cleanup-notification-log',
 --      '0 3 * * *',
 --      'DELETE FROM public.notification_log WHERE sent_at < now() - interval ''7 days'''
+--    );
+--
+-- 6. Schedule cron.job_run_details cleanup (running every minute generates ~1440 rows/day):
+--    SELECT cron.schedule(
+--      'cleanup-cron-run-details',
+--      '0 3 * * *',
+--      'DELETE FROM cron.job_run_details WHERE end_time < now() - interval ''7 days'''
 --    );
